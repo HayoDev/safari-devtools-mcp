@@ -4,6 +4,8 @@
 
 `safari-devtools-mcp` lets your coding agent (such as Claude, Cursor, Copilot or Gemini) control and inspect a live Safari browser on macOS. It acts as a Model-Context-Protocol (MCP) server, giving your AI coding assistant access to Safari DevTools for debugging, automation, and testing.
 
+Chrome developers get powerful AI debugging through [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) by Google. Safari developers should have something equivalent — this project brings that same experience to Safari, with matching tool names and parameter schemas so you can swap between browsers with minimal friction.
+
 ## [Changelog](./CHANGELOG.md) | [Contributing](./CONTRIBUTING.md)
 
 > **Note:** This server exposes browser content (page data, console logs, network traffic) to MCP clients. Avoid browsing sensitive websites or entering credentials while a session is active.
@@ -224,6 +226,11 @@ Safari Browser
 - **Network pre-injection gap**: Network requests made before injection are backfilled via the Performance API with limited detail (timing and size, but no headers or status codes).
 - **PNG only**: Safari WebDriver only supports PNG screenshots — no JPEG or WebP. Full-page capture is not available.
 - **AppleScript permissions**: Tab management features require macOS Accessibility permissions for `osascript`.
+
+## Credits
+
+- [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) by Google/ChromeDevTools — the inspiration and interface standard this project mirrors. Tool names and schemas are intentionally compatible so you can switch between Chrome and Safari seamlessly.
+- [safari-mcp-server](https://github.com/lxman/safari-mcp-server) — prior art for Safari MCP integration that we studied during development.
 
 ## License
 
