@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.1](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.0...safari-devtools-mcp-v0.1.1) (2026-03-25)
+
+
+### Features
+
+* initial release of safari-devtools-mcp ([4bb9f4d](https://github.com/HayoDev/safari-devtools-mcp/commit/4bb9f4d1d1a0cee329802baf1053f5ba56d9af5b))
+
+
+### CI/CD
+
+* add release-please and CI workflows ([49aa7e8](https://github.com/HayoDev/safari-devtools-mcp/commit/49aa7e8b55e41d83ae2dbcf47288023d0bce4deb))
+
 ## [0.1.0] - 2026-03-25
 
 ### Added
