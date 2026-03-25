@@ -1,0 +1,66 @@
+{
+  "name": "safari-devtools-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Safari DevTools — browser debugging and automation for AI coding agents",
+  "type": "module",
+  "main": "build/src/index.js",
+  "bin": {
+    "safari-devtools-mcp": "build/src/bin/safari-devtools-mcp.js"
+  },
+  "files": [
+    "build/src",
+    "LICENSE",
+    "!*.tsbuildinfo"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf build",
+    "start": "node build/src/bin/safari-devtools-mcp.js",
+    "dev": "npm run build && npm start",
+    "typecheck": "tsc --noEmit",
+    "format": "eslint --cache --fix . && prettier --write --cache .",
+    "check-format": "eslint --cache . && prettier --check --cache .",
+    "test": "npm run build && node --test build/tests/**/*.test.js",
+    "test:no-build": "node --test build/tests/**/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HayoDev/safari-devtools-mcp.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HayoDev/safari-devtools-mcp/issues"
+  },
+  "homepage": "https://github.com/HayoDev/safari-devtools-mcp#readme",
+  "keywords": [
+    "mcp",
+    "safari",
+    "devtools",
+    "debugging",
+    "browser-automation",
+    "model-context-protocol",
+    "ai-coding"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "os": [
+    "darwin"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.0",
+    "selenium-webdriver": "^4.26.1",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@stylistic/eslint-plugin": "^5.4.0",
+    "@types/node": "^22.10.0",
+    "@types/selenium-webdriver": "^4.1.27",
+    "eslint": "^9.35.0",
+    "prettier": "^3.6.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.43.0"
+  }
+}

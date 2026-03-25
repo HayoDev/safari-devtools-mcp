@@ -1,0 +1,6 @@
+{
+  "safari-devtools": {
+    "command": "node",
+    "args": ["build/src/bin/safari-devtools-mcp.js"]
+  }
+}
