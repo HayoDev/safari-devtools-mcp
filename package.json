@@ -21,7 +21,8 @@
     "format": "eslint --cache --fix . && prettier --write --cache .",
     "check-format": "eslint --cache . && prettier --check --cache .",
     "test": "npm run build && node --test build/tests/**/*.test.js",
-    "test:no-build": "node --test build/tests/**/*.test.js"
+    "test:no-build": "node --test build/tests/**/*.test.js",
+    "prepare": "sh scripts/install-hooks.sh"
   },
   "repository": {
     "type": "git",
