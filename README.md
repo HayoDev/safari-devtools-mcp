@@ -6,6 +6,8 @@
 
 ## [Changelog](./CHANGELOG.md) | [Contributing](./CONTRIBUTING.md)
 
+> **Note:** This server exposes browser content (page data, console logs, network traffic) to MCP clients. Avoid browsing sensitive websites or entering credentials while a session is active.
+
 ## Key features
 
 - **Browser debugging**: Capture console logs, inspect network requests, and evaluate JavaScript — with stack traces and full request/response details.
@@ -71,6 +73,54 @@ Add the standard config to your Cursor MCP settings.
 <summary>VS Code</summary>
 
 Add the standard config to `.vscode/mcp.json`.
+
+</details>
+
+<details>
+<summary>Copilot CLI</summary>
+
+```bash
+copilot mcp add safari-devtools -- npx safari-devtools-mcp
+```
+
+</details>
+
+<details>
+<summary>Gemini CLI</summary>
+
+```bash
+gemini mcp add safari-devtools -- npx safari-devtools-mcp
+```
+
+Or add the standard config to your `~/.gemini/settings.json`.
+
+</details>
+
+<details>
+<summary>Gemini Code Assist</summary>
+
+Add the standard config to your `.gemini/settings.json` in the project root.
+
+</details>
+
+<details>
+<summary>JetBrains AI Assistant & Junie</summary>
+
+Add the standard config to your `.junie/mcp.json` in the project root.
+
+</details>
+
+<details>
+<summary>Visual Studio</summary>
+
+Add the standard config to your `.vs/mcp.json` in the solution root.
+
+</details>
+
+<details>
+<summary>Warp</summary>
+
+Add the standard config to your Warp MCP settings file at `~/.warp/mcp.json`.
 
 </details>
 
