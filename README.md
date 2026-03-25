@@ -1,62 +1,35 @@
 # Safari DevTools MCP
 
-A Model Context Protocol (MCP) server that provides Safari browser debugging and automation tools for AI coding agents on macOS. Tool names and schemas mirror [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) for cross-browser compatibility.
+[![npm](https://img.shields.io/npm/v/safari-devtools-mcp.svg)](https://npmjs.org/package/safari-devtools-mcp)
 
-## Key Features
+`safari-devtools-mcp` lets your coding agent (such as Claude, Cursor, Copilot or Gemini) control and inspect a live Safari browser on macOS. It acts as a Model-Context-Protocol (MCP) server, giving your AI coding assistant access to Safari DevTools for debugging, automation, and testing.
 
-- **Console debugging** — capture logs, errors, warnings with stack traces
-- **Network monitoring** — inspect requests/responses with hybrid capture (Performance API + Fetch/XHR interception)
-- **JavaScript evaluation** — run scripts in the browser context
-- **DOM snapshots** — accessibility-tree snapshots with UIDs for element targeting
-- **Screenshots** — capture page or element screenshots
-- **Tab management** — native macOS tab management via AppleScript
-- **Input automation** — click, type, fill forms, drag and drop, keyboard shortcuts
-- **Cross-browser compatible** — matching tool names with chrome-devtools-mcp
+## [Changelog](./CHANGELOG.md) | [Contributing](./CONTRIBUTING.md)
+
+## Key features
+
+- **Browser debugging**: Capture console logs, inspect network requests, and evaluate JavaScript — with stack traces and full request/response details.
+- **Reliable automation**: Click, type, fill forms, drag and drop, and press keyboard shortcuts using accessibility-tree snapshots with stable UIDs.
+- **Native macOS integration**: Tab management via AppleScript for listing, switching, and controlling Safari tabs across windows.
 
 ## Requirements
 
 - **macOS** (Safari and SafariDriver are Apple-exclusive)
-- **Node.js 18+** (22+ recommended, see `.nvmrc`)
-- **Safari** with Developer menu enabled
+- **Node.js 18+** (22+ recommended)
+- **Safari** with remote automation enabled
 
-### Safari Setup
+### Safari setup
 
-1. Open Safari → Settings → Advanced → check **"Show features for web developers"**
-2. In the Develop menu → check **"Allow Remote Automation"**
+1. Open Safari > Settings > Advanced > check **"Show features for web developers"**
+2. Develop menu > check **"Allow Remote Automation"**
 3. Authorize SafariDriver:
    ```bash
    sudo safaridriver --enable
    ```
 
-## Getting Started
+## Getting started
 
-### Install from npm
-
-```bash
-npx safari-devtools-mcp
-```
-
-### Install from source
-
-```bash
-git clone https://github.com/HayoDev/safari-devtools-mcp.git
-cd safari-devtools-mcp
-npm install
-npm run build
-```
-
-### MCP Client Configuration
-
-<details>
-<summary>Claude Code</summary>
-
-Run this command:
-
-```bash
-claude mcp add safari-devtools -- npx safari-devtools-mcp
-```
-
-Or add to your project's `.mcp.json`:
+Standard MCP config:
 
 ```json
 {
@@ -68,78 +41,58 @@ Or add to your project's `.mcp.json`:
   }
 }
 ```
+
+<details>
+<summary>Claude Code</summary>
+
+```bash
+claude mcp add safari-devtools -- npx safari-devtools-mcp
+```
+
+Or add to your project's `.mcp.json` using the standard config above.
 
 </details>
 
 <details>
 <summary>Claude Desktop</summary>
 
-Add to your `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "safari-devtools": {
-      "command": "npx",
-      "args": ["safari-devtools-mcp"]
-    }
-  }
-}
-```
-
-Config file location:
-
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+Add the standard config to `~/Library/Application Support/Claude/claude_desktop_config.json`.
 
 </details>
 
 <details>
 <summary>Cursor</summary>
 
-Add to your Cursor MCP settings:
-
-```json
-{
-  "mcpServers": {
-    "safari-devtools": {
-      "command": "npx",
-      "args": ["safari-devtools-mcp"]
-    }
-  }
-}
-```
+Add the standard config to your Cursor MCP settings.
 
 </details>
 
 <details>
 <summary>VS Code</summary>
 
-Add to your VS Code settings (`.vscode/mcp.json`):
-
-```json
-{
-  "mcpServers": {
-    "safari-devtools": {
-      "command": "npx",
-      "args": ["safari-devtools-mcp"]
-    }
-  }
-}
-```
+Add the standard config to `.vscode/mcp.json`.
 
 </details>
 
 <details>
-<summary>From source (any client)</summary>
+<summary>From source</summary>
 
-If you cloned the repo, point to the built entry point:
+```bash
+git clone https://github.com/HayoDev/safari-devtools-mcp.git
+cd safari-devtools-mcp
+npm install && npm run build
+```
+
+Then point your MCP client to the built entry point:
 
 ```json
 {
   "mcpServers": {
     "safari-devtools": {
       "command": "node",
-      "args": ["/path/to/safari-devtools-mcp/build/bin/safari-devtools-mcp.js"]
+      "args": [
+        "/path/to/safari-devtools-mcp/build/src/bin/safari-devtools-mcp.js"
+      ]
     }
   }
 }
@@ -147,50 +100,50 @@ If you cloned the repo, point to the built entry point:
 
 </details>
 
-### Your First Prompt
+### Your first prompt
 
 > Navigate to https://example.com, take a snapshot, and list any console errors.
 
-## Tools
+## Tools (25)
 
-### Debugging (Core)
+### Debugging
 
-| Tool                    | Description                                       |
-| ----------------------- | ------------------------------------------------- |
-| `list_console_messages` | List console messages with filtering by level     |
-| `get_console_message`   | Get detailed message with stack trace             |
-| `list_network_requests` | Monitor network requests (Fetch, XHR, resources)  |
-| `get_network_request`   | Get full request/response with headers            |
-| `evaluate_script`       | Execute JavaScript in the browser context         |
-| `take_screenshot`       | Capture page or element screenshots (PNG)         |
-| `take_snapshot`         | DOM tree snapshot with UIDs for element targeting |
+| Tool                    | Description                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| `list_console_messages` | List console messages with filtering by level (log, warn, error)              |
+| `get_console_message`   | Get a detailed message including stack trace and arguments                    |
+| `list_network_requests` | Monitor network requests — Fetch, XHR, and resource loads                     |
+| `get_network_request`   | Get full request/response details with headers and body                       |
+| `evaluate_script`       | Execute JavaScript in the browser context and return results                  |
+| `take_screenshot`       | Capture a PNG screenshot of the page or a specific element                    |
+| `take_snapshot`         | Accessibility-tree snapshot of the DOM with stable UIDs for element targeting |
 
 ### Navigation
 
-| Tool            | Description                               |
-| --------------- | ----------------------------------------- |
-| `list_pages`    | List open Safari tabs (via AppleScript)   |
-| `select_page`   | Switch to a specific tab                  |
-| `new_page`      | Open a new tab with URL                   |
-| `close_page`    | Close a tab                               |
-| `navigate_page` | Navigate to URL, back, forward, or reload |
-| `wait_for`      | Wait for text to appear on page           |
-| `resize_page`   | Resize the browser window                 |
-| `handle_dialog` | Accept or dismiss browser dialogs         |
+| Tool            | Description                                                |
+| --------------- | ---------------------------------------------------------- |
+| `list_pages`    | List all open Safari tabs across windows                   |
+| `select_page`   | Switch to a specific tab                                   |
+| `new_page`      | Open a new tab and navigate to a URL                       |
+| `close_page`    | Close a tab                                                |
+| `navigate_page` | Navigate to a URL, go back, forward, or reload             |
+| `wait_for`      | Wait for specific text to appear on the page               |
+| `resize_page`   | Resize the browser window                                  |
+| `handle_dialog` | Accept or dismiss browser dialogs (alert, confirm, prompt) |
 
-### Input Automation
+### Input automation
 
-| Tool          | Description                                 |
-| ------------- | ------------------------------------------- |
-| `click`       | Click elements by UID from snapshot         |
-| `click_at`    | Click at coordinates                        |
-| `hover`       | Hover over elements                         |
-| `fill`        | Type into inputs or select from dropdowns   |
-| `fill_form`   | Fill multiple form fields at once           |
-| `type_text`   | Type text into focused input                |
-| `drag`        | Drag and drop elements                      |
-| `press_key`   | Press keys or combinations (e.g., `Meta+A`) |
-| `upload_file` | Upload files through file inputs            |
+| Tool          | Description                                          |
+| ------------- | ---------------------------------------------------- |
+| `click`       | Click an element by UID from a snapshot              |
+| `click_at`    | Click at specific x/y coordinates                    |
+| `hover`       | Hover over an element                                |
+| `fill`        | Type into an input field or select from a dropdown   |
+| `fill_form`   | Fill multiple form fields at once                    |
+| `type_text`   | Type text into the currently focused element         |
+| `drag`        | Drag and drop between elements or coordinates        |
+| `press_key`   | Press a key or combination (e.g., `Meta+A`, `Enter`) |
+| `upload_file` | Upload a file through a file input                   |
 
 ## Architecture
 
@@ -212,56 +165,15 @@ Safari DevTools MCP Server
 Safari Browser
 ```
 
-### Network Monitoring Strategy
+## Known limitations
 
-Network request capture uses a 4-layer hybrid approach to minimize the pre-injection gap:
-
-1. **Performance API backfill** — `performance.getEntriesByType('resource')` captures historical requests made before script injection (timing and size data, but no headers/status)
-2. **Fetch interception** — Wraps `window.fetch()` for ongoing requests with full details
-3. **XHR interception** — Wraps `XMLHttpRequest` for the same
-4. **PerformanceObserver** — Catches resource loads that interceptors miss
-
-Historical entries are flagged so the AI knows they have limited detail compared to intercepted requests.
-
-### Tab Management
-
-Uses AppleScript (`osascript`) for native macOS tab management — listing all Safari tabs across windows, switching tabs, opening/closing tabs. Falls back to WebDriver-only mode if AppleScript access is denied.
-
-## Compatibility with chrome-devtools-mcp
-
-Tool names and parameter schemas intentionally mirror chrome-devtools-mcp. The same `take_screenshot`, `evaluate_script`, `list_console_messages`, `click`, `fill`, etc. calls work across both servers, making it easy to switch between Chrome and Safari.
-
-## Features NOT Available (vs Chrome DevTools MCP)
-
-The following chrome-devtools-mcp features **cannot** be ported to Safari due to platform differences:
-
-| Feature                         | Reason                                                 |
-| ------------------------------- | ------------------------------------------------------ |
-| **Lighthouse audits**           | Chrome-specific tool, not available for Safari         |
-| **Memory heap snapshots**       | Requires Chrome DevTools Protocol (CDP)                |
-| **Full performance traces**     | Chrome's Tracing API is CDP-specific                   |
-| **Chrome extension management** | Safari extensions use a completely different system    |
-| **Screencast/video recording**  | Requires CDP screencast API                            |
-| **Network throttling**          | CDP-specific network emulation                         |
-| **Geolocation emulation**       | CDP-specific emulation                                 |
-| **Device emulation**            | CDP-specific (Safari has no equivalent via WebDriver)  |
-| **Screenshot formats**          | Safari WebDriver only supports PNG (no JPEG/WebP)      |
-| **Full-page screenshots**       | Safari WebDriver does not support full-page capture    |
-| **initScript**                  | Requires CDP's `Page.addScriptToEvaluateOnNewDocument` |
-| **Isolated browser contexts**   | Safari WebDriver only supports a single session        |
-
-## Known Limitations
-
-- **Single session**: Safari only allows one WebDriver session at a time
-- **Network pre-injection gap**: Requests before script injection are captured via Performance API with limited detail (no headers, no status code)
-- **Console pre-injection gap**: Console messages logged before script injection are not captured
-- **AppleScript permissions**: Tab management requires macOS Accessibility permissions
-- **No headless mode**: Safari does not support headless operation
-- **macOS only**: Safari and SafariDriver are Apple-exclusive
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+- **Single session**: Safari only allows one WebDriver session at a time. Running multiple instances is not supported.
+- **macOS only**: Safari and SafariDriver are Apple-exclusive — this server does not work on Linux or Windows.
+- **No headless mode**: Safari does not support headless operation. A visible browser window is required.
+- **Console pre-injection gap**: Console messages logged before the capture script is injected are not captured.
+- **Network pre-injection gap**: Network requests made before injection are backfilled via the Performance API with limited detail (timing and size, but no headers or status codes).
+- **PNG only**: Safari WebDriver only supports PNG screenshots — no JPEG or WebP. Full-page capture is not available.
+- **AppleScript permissions**: Tab management features require macOS Accessibility permissions for `osascript`.
 
 ## License
 
