@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.2](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.1...safari-devtools-mcp-v0.1.2) (2026-03-25)
+
+
+### Documentation
+
+* added picture of how the server works at a glance ([b5323c0](https://github.com/HayoDev/safari-devtools-mcp/commit/b5323c06111ff2de8b5b57f76a104a4cc532285d))
+* formatting ([b5323c0](https://github.com/HayoDev/safari-devtools-mcp/commit/b5323c06111ff2de8b5b57f76a104a4cc532285d))
+* linter ([b5323c0](https://github.com/HayoDev/safari-devtools-mcp/commit/b5323c06111ff2de8b5b57f76a104a4cc532285d))
+* rewrite README for clarity and conciseness ([#3](https://github.com/HayoDev/safari-devtools-mcp/issues/3)) ([b5323c0](https://github.com/HayoDev/safari-devtools-mcp/commit/b5323c06111ff2de8b5b57f76a104a4cc532285d))
+* spelling ([b5323c0](https://github.com/HayoDev/safari-devtools-mcp/commit/b5323c06111ff2de8b5b57f76a104a4cc532285d))
+
 ## [0.1.1](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.0...safari-devtools-mcp-v0.1.1) (2026-03-25)
 
 
