@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.7](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.6...safari-devtools-mcp-v0.1.7) (2026-03-26)
+
+
+### Features
+
+* add cookie, storage, and CSS inspection tools ([#14](https://github.com/HayoDev/safari-devtools-mcp/issues/14)) ([a4d62a8](https://github.com/HayoDev/safari-devtools-mcp/commit/a4d62a8288e5844d2b646c323a3e3fbc080dd0e4))
+
 ## [0.1.6](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.5...safari-devtools-mcp-v0.1.6) (2026-03-26)
 
 
