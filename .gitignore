@@ -21,6 +21,9 @@ npm-debug.log*
 .vscode/
 .idea/
 
+# Claude Code (personal/local — .agent/ is the shared agnostic config)
+.claude/
+
 # OS
 .DS_Store
 Thumbs.db

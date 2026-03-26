@@ -40,7 +40,7 @@ Standard MCP config:
   "mcpServers": {
     "safari-devtools": {
       "command": "npx",
-      "args": ["-y", "safari-devtools-mcp"]
+      "args": ["-y", "safari-devtools-mcp@latest"]
     }
   }
 }
@@ -50,7 +50,7 @@ Standard MCP config:
 <summary>Claude Code</summary>
 
 ```bash
-claude mcp add safari-devtools -- npx -y safari-devtools-mcp
+claude mcp add safari-devtools -- npx -y safari-devtools-mcp@latest
 ```
 
 Or add to your project's `.mcp.json` using the standard config above.
@@ -82,7 +82,7 @@ Add the standard config to `.vscode/mcp.json`.
 <summary>Copilot CLI</summary>
 
 ```bash
-copilot mcp add safari-devtools -- npx -y safari-devtools-mcp
+copilot mcp add safari-devtools -- npx -y safari-devtools-mcp@latest
 ```
 
 </details>
@@ -91,7 +91,7 @@ copilot mcp add safari-devtools -- npx -y safari-devtools-mcp
 <summary>Gemini CLI</summary>
 
 ```bash
-gemini mcp add safari-devtools -- npx -y safari-devtools-mcp
+gemini mcp add safari-devtools -- npx -y safari-devtools-mcp@latest
 ```
 
 Or add the standard config to your `~/.gemini/settings.json`.
