@@ -113,6 +113,18 @@ Add the standard config to your `.junie/mcp.json` in the project root.
 </details>
 
 <details>
+<summary>Raycast</summary>
+
+Open "Install MCP Server" in Raycast and fill in:
+
+- **Command**: `npx`
+- **Arguments**: `-y safari-devtools-mcp`
+
+Or copy the standard config JSON above before opening the command — Raycast will auto-fill the form.
+
+</details>
+
+<details>
 <summary>Visual Studio</summary>
 
 Add the standard config to your `.vs/mcp.json` in the solution root.
