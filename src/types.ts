@@ -79,6 +79,7 @@ export interface PageInfo {
   url: string;
   title: string;
   isSelected: boolean;
+  warning?: string;
 }
 
 export interface SafariSessionOptions {

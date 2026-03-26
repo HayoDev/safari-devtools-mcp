@@ -17,13 +17,14 @@ export const listPages: ToolHandler = async (_params, driver) => {
       `  pageId=${p.pageId} ${p.isSelected ? '* ' : '  '}${p.title} (${p.url})`,
   );
 
+  let text = `Open pages (* = selected):\n${lines.join('\n')}`;
+  const warnings = pages.filter(p => p.warning).map(p => p.warning);
+  if (warnings.length > 0) {
+    text += `\n\n⚠️ ${warnings.join('\n')}`;
+  }
+
   return {
-    content: [
-      {
-        type: 'text' as const,
-        text: `Open pages (* = selected):\n${lines.join('\n')}`,
-      },
-    ],
+    content: [{type: 'text' as const, text}],
   };
 };
 
@@ -94,14 +95,13 @@ export const newPageSchema = {
 };
 
 export const newPage: ToolHandler = async (params, driver) => {
-  await driver.newPage(params.url as string);
+  const result = await driver.newPage(params.url as string);
+  let text = `Opened new page with URL: ${params.url}`;
+  if (result.warning) {
+    text += `\n\n⚠️ ${result.warning}`;
+  }
   return {
-    content: [
-      {
-        type: 'text' as const,
-        text: `Opened new page with URL: ${params.url}`,
-      },
-    ],
+    content: [{type: 'text' as const, text}],
   };
 };
 
