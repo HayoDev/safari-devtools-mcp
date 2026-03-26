@@ -1,18 +1,15 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import stylistic from '@stylistic/eslint-plugin';
+import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...tseslint.configs.stylistic,
+  prettier,
   {
-    plugins: {
-      '@stylistic': stylistic,
-    },
     rules: {
       curly: ['error', 'multi-line'],
-      '@stylistic/quotes': ['error', 'single', {avoidEscape: true}],
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
