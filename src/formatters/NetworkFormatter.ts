@@ -32,7 +32,6 @@ export function formatNetworkRequests(
 
 export function formatNetworkRequest(log: NetworkLogEntry): string {
   const lines: string[] = [];
-
   lines.push(`Network Request (reqid=${log.reqid})`);
   lines.push(`  URL: ${log.url}`);
   lines.push(`  Method: ${log.method}`);

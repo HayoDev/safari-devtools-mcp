@@ -18,8 +18,8 @@
     "start": "node build/src/bin/safari-devtools-mcp.js",
     "dev": "npm run build && npm start",
     "typecheck": "tsc --noEmit",
-    "format": "eslint --cache --fix . && prettier --write --cache .",
-    "check-format": "eslint --cache . && prettier --check --cache .",
+    "format": "eslint --cache --fix . && oxfmt .",
+    "check-format": "eslint --cache . && oxfmt --check .",
     "test": "npm run build && node --test build/tests/**/*.test.js",
     "test:no-build": "node --test build/tests/**/*.test.js",
     "prepare": "sh scripts/install-hooks.sh"
@@ -56,11 +56,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",
-    "@stylistic/eslint-plugin": "^5.4.0",
     "@types/node": "^22.10.0",
     "@types/selenium-webdriver": "^4.1.27",
     "eslint": "^9.35.0",
-    "prettier": "^3.6.0",
+    "eslint-config-prettier": "^10.1.8",
+    "oxfmt": "^0.42.0",
     "typescript": "^5.7.0",
     "typescript-eslint": "^8.43.0"
   }
