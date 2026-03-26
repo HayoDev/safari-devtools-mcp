@@ -21,6 +21,19 @@ trigger: always_on
 - Do not use `// @ts-expect-error` comments.
 - Prefer `for..of` instead of `forEach`.
 - Use consistent type imports (`import type {Foo}`).
+- No floating promises — always `await` or explicitly handle.
+- Prefix unused variables/args with `_` (e.g. `_params`).
+- Use `curly` braces for multi-line blocks (single-line `if` without braces is OK).
+
+## Formatting (oxfmt)
+
+- No bracket spacing: `{foo}` not `{ foo }`.
+- Single quotes, not double quotes.
+- Trailing commas everywhere (ES5+).
+- Arrow parens: avoid when possible (`x => x`, not `(x) => x`).
+- One attribute per line in JSX/HTML-like contexts.
+- Print width: 80 characters.
+- Line endings: LF only.
 
 ## Rules for Injected Scripts
 

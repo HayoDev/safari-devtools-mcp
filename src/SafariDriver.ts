@@ -21,6 +21,18 @@ export class SafariDriver {
   private injectedOnPages = new Set<string>();
 
   async ensureDriver(): Promise<ThenableWebDriver> {
+    if (this.driver) {
+      // Health check: verify the session is still alive
+      try {
+        await this.driver.getTitle();
+      } catch {
+        // Session is dead — clean up and recreate
+        this.driver = null;
+        this.initialized = false;
+        this.injectedOnPages.clear();
+      }
+    }
+
     if (!this.driver) {
       const options = new safari.Options();
       this.driver = new Builder()
@@ -34,6 +46,53 @@ export class SafariDriver {
 
   async isReady(): Promise<boolean> {
     return this.initialized && this.driver !== null;
+  }
+
+  /**
+   * Wait for the page to be ready: document.readyState === 'complete',
+   * then wait for DOM to stabilize (no mutations for 100ms).
+   */
+  private async waitForPageReady(timeout = 10000): Promise<void> {
+    const driver = await this.ensureDriver();
+
+    // Phase 1: Wait for document.readyState === 'complete'
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      const state = await driver.executeScript<string>(
+        'return document.readyState;',
+      );
+      if (state === 'complete') break;
+      await new Promise(r => setTimeout(r, 50));
+    }
+
+    // Phase 2: Wait for DOM stability (no mutations for 100ms)
+    await driver
+      .executeAsyncScript(
+        `
+      const done = arguments[arguments.length - 1];
+      const timeout = ${Math.max(0, timeout - (Date.now() - start))};
+      let timer = setTimeout(() => done(), 100);
+      const observer = new MutationObserver(() => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          observer.disconnect();
+          done();
+        }, 100);
+      });
+      observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+      });
+      setTimeout(() => {
+        observer.disconnect();
+        done();
+      }, Math.min(timeout, 3000));
+    `,
+      )
+      .catch(() => {
+        // Ignore errors from page transitions
+      });
   }
 
   /**
@@ -61,28 +120,28 @@ export class SafariDriver {
   async navigate(url: string): Promise<void> {
     const driver = await this.ensureDriver();
     await driver.get(url);
+    await this.waitForPageReady();
     await this.injectCaptureScripts();
   }
 
   async goBack(): Promise<void> {
     const driver = await this.ensureDriver();
     await driver.navigate().back();
-    // Small delay for page to settle, then re-inject
-    await new Promise(r => setTimeout(r, 500));
+    await this.waitForPageReady();
     await this.injectCaptureScripts();
   }
 
   async goForward(): Promise<void> {
     const driver = await this.ensureDriver();
     await driver.navigate().forward();
-    await new Promise(r => setTimeout(r, 500));
+    await this.waitForPageReady();
     await this.injectCaptureScripts();
   }
 
   async reload(): Promise<void> {
     const driver = await this.ensureDriver();
     await driver.navigate().refresh();
-    await new Promise(r => setTimeout(r, 500));
+    await this.waitForPageReady();
     await this.injectCaptureScripts();
   }
 
@@ -469,11 +528,20 @@ export class SafariDriver {
           isSelected: url === currentUrl,
         };
       });
-    } catch {
-      // Fallback: return current page only
+    } catch (e) {
+      // Fallback: return current page with warning
       const url = await this.getCurrentUrl();
       const title = await this.getTitle();
-      return [{pageId: 0, url, title, isSelected: true}];
+      const warning = e instanceof Error ? e.message : String(e);
+      return [
+        {
+          pageId: 0,
+          url,
+          title,
+          isSelected: true,
+          warning: `AppleScript tab listing failed (${warning}). Showing current page only. Ensure Safari is running and Accessibility permissions are granted.`,
+        },
+      ];
     }
   }
 
@@ -507,7 +575,7 @@ export class SafariDriver {
     }
   }
 
-  async newPage(url: string): Promise<void> {
+  async newPage(url: string): Promise<{warning?: string}> {
     const {execSync} = await import('child_process');
     try {
       const script = `
@@ -522,9 +590,14 @@ export class SafariDriver {
         encoding: 'utf-8',
         timeout: 5000,
       });
-    } catch {
+      return {};
+    } catch (e) {
       // Fallback to WebDriver navigation
       await this.navigate(url);
+      const msg = e instanceof Error ? e.message : String(e);
+      return {
+        warning: `AppleScript new-tab failed (${msg}). Fell back to WebDriver navigation — page opened but not as a new tab. Ensure Accessibility permissions are granted.`,
+      };
     }
   }
 

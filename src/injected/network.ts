@@ -17,6 +17,7 @@ export const NETWORK_CAPTURE_SCRIPT = `
   window.__safariDevToolsNetworkInitialized = true;
   window.__safariDevToolsNetworkLogs = [];
   window.__safariDevToolsNetworkReqId = 0;
+  window.__safariDevToolsInterceptedUrls = new Map(); // URL+startTime -> true
 
   // Helper to guess resource type from initiatorType or URL
   function guessResourceType(initiatorType, url) {
@@ -71,18 +72,18 @@ export const NETWORK_CAPTURE_SCRIPT = `
   try {
     var observer = new PerformanceObserver(function(list) {
       list.getEntries().forEach(function(entry) {
-        // Skip if we already have this URL from fetch/XHR interception
-        var isDuplicate = window.__safariDevToolsNetworkLogs.some(function(log) {
-          return !log.historical && log.url === entry.name && Math.abs(log.startTime - entry.startTime) < 100;
-        });
-        if (isDuplicate) return;
+        // Skip if this request was already captured by fetch/XHR interceptors
+        // Check with a small tolerance window for startTime rounding
+        var dominated = false;
+        for (var t = Math.round(entry.startTime) - 1; t <= Math.round(entry.startTime) + 1; t++) {
+          if (window.__safariDevToolsInterceptedUrls.has(entry.name + '|' + t)) {
+            dominated = true;
+            break;
+          }
+        }
+        if (dominated) return;
 
-        // Only add if not already captured by interceptors
-        var hasIntercepted = window.__safariDevToolsNetworkLogs.some(function(log) {
-          return !log.historical && log.url === entry.name;
-        });
-        if (!hasIntercepted) {
-          window.__safariDevToolsNetworkLogs.push({
+        window.__safariDevToolsNetworkLogs.push({
             reqid: window.__safariDevToolsNetworkReqId++,
             url: entry.name,
             method: 'GET',
@@ -99,7 +100,6 @@ export const NETWORK_CAPTURE_SCRIPT = `
             historical: false,
             mimeType: ''
           });
-        }
       });
     });
     observer.observe({ entryTypes: ['resource'] });
@@ -153,6 +153,7 @@ export const NETWORK_CAPTURE_SCRIPT = `
     } catch(e) {}
 
     window.__safariDevToolsNetworkLogs.push(entry);
+    window.__safariDevToolsInterceptedUrls.set(entry.url + '|' + Math.round(entry.startTime), true);
 
     return originalFetch.apply(this, args).then(function(response) {
       entry.status = response.status;
@@ -226,6 +227,7 @@ export const NETWORK_CAPTURE_SCRIPT = `
       }
 
       window.__safariDevToolsNetworkLogs.push(entry);
+      window.__safariDevToolsInterceptedUrls.set(entry.url + '|' + Math.round(entry.startTime), true);
 
       xhr.addEventListener('load', function() {
         entry.status = xhr.status;
