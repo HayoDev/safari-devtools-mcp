@@ -19,7 +19,7 @@
     "start": "node build/src/bin/safari-devtools-mcp.js",
     "dev": "npm run build && npm start",
     "typecheck": "tsc --noEmit",
-    "format": "eslint --cache --fix . && oxfmt .",
+    "format": "eslint --cache --fix . && oxfmt --write .",
     "check-format": "eslint --cache . && oxfmt --check .",
     "test": "npm run build && node --test build/tests/**/*.test.js",
     "test:no-build": "node --test build/tests/**/*.test.js",

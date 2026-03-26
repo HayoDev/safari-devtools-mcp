@@ -46,6 +46,23 @@ import {
   handleDialog,
   handleDialogSchema,
 } from './tools/pages.js';
+import {getComputedStyle, getComputedStyleSchema} from './tools/css.js';
+import {
+  getCookies,
+  getCookiesSchema,
+  setCookie,
+  setCookieSchema,
+  deleteCookie,
+  deleteCookieSchema,
+} from './tools/cookies.js';
+import {
+  getStorage,
+  getStorageSchema,
+  setStorage,
+  setStorageSchema,
+  deleteStorage,
+  deleteStorageSchema,
+} from './tools/storage.js';
 import {
   click,
   clickSchema,
@@ -229,6 +246,63 @@ export function createSafariMcpServer(): {
     'If a browser dialog was opened, use this command to handle it.',
     handleDialogSchema,
     handleDialog,
+  );
+
+  // =====================
+  // CSS TOOLS
+  // =====================
+
+  registerTool(
+    'get_computed_style',
+    'Get computed CSS styles for an element by its UID from a snapshot. Returns commonly useful properties by default, or specify exact properties.',
+    getComputedStyleSchema,
+    getComputedStyle,
+  );
+
+  // =====================
+  // COOKIE & STORAGE TOOLS
+  // =====================
+
+  registerTool(
+    'get_cookies',
+    'Get browser cookies for the current page. Optionally filter by name or domain.',
+    getCookiesSchema,
+    getCookies,
+  );
+
+  registerTool(
+    'set_cookie',
+    'Set a browser cookie with the given name, value, and optional attributes.',
+    setCookieSchema,
+    setCookie,
+  );
+
+  registerTool(
+    'delete_cookie',
+    'Delete a cookie by name, or delete all cookies when no name is provided.',
+    deleteCookieSchema,
+    deleteCookie,
+  );
+
+  registerTool(
+    'get_storage',
+    'Read from localStorage or sessionStorage. Returns all entries or a specific key.',
+    getStorageSchema,
+    getStorage,
+  );
+
+  registerTool(
+    'set_storage',
+    'Write a key-value pair to localStorage or sessionStorage.',
+    setStorageSchema,
+    setStorage,
+  );
+
+  registerTool(
+    'delete_storage',
+    'Delete a key from localStorage or sessionStorage, or clear all entries.',
+    deleteStorageSchema,
+    deleteStorage,
   );
 
   // =====================

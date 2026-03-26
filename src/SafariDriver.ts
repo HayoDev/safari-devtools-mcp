@@ -562,6 +562,109 @@ export class SafariDriver {
     }
   }
 
+  // ---- CSS ----
+
+  async getComputedStyle(
+    uid: string,
+    properties: string[],
+  ): Promise<Record<string, string> | null> {
+    const driver = await this.ensureDriver();
+    return driver.executeScript<Record<string, string> | null>(
+      `
+      const el = document.querySelector('[data-safari-uid="${uid}"]');
+      if (!el) return null;
+      const cs = window.getComputedStyle(el);
+      const result = {};
+      for (const prop of arguments[0]) {
+        result[prop] = cs.getPropertyValue(prop);
+      }
+      return result;
+      `,
+      properties,
+    );
+  }
+
+  // ---- Cookies ----
+
+  async getCookies(): Promise<
+    {
+      name: string;
+      value: string;
+      domain?: string;
+      path?: string;
+      secure?: boolean;
+      httpOnly?: boolean;
+      expiry?: number;
+    }[]
+  > {
+    const driver = await this.ensureDriver();
+    const cookies = await driver.manage().getCookies();
+    return cookies.map(c => ({
+      ...c,
+      expiry:
+        c.expiry instanceof Date
+          ? Math.floor(c.expiry.getTime() / 1000)
+          : c.expiry,
+    }));
+  }
+
+  async setCookie(cookie: {
+    name: string;
+    value: string;
+    domain?: string;
+    path?: string;
+    secure?: boolean;
+    httpOnly?: boolean;
+    expiry?: number;
+  }): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.manage().addCookie(cookie);
+  }
+
+  async deleteCookie(name: string): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.manage().deleteCookie(name);
+  }
+
+  async deleteAllCookies(): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.manage().deleteAllCookies();
+  }
+
+  // ---- Storage ----
+
+  async getStorage(
+    type: string,
+    key?: string,
+  ): Promise<string | Record<string, string> | null> {
+    const driver = await this.ensureDriver();
+    if (key) {
+      return driver.executeScript<string | null>(
+        `return ${type}.getItem(${JSON.stringify(key)});`,
+      );
+    }
+    return driver.executeScript<Record<string, string>>(
+      `const entries = {}; for (let i = 0; i < ${type}.length; i++) { const k = ${type}.key(i); entries[k] = ${type}.getItem(k); } return entries;`,
+    );
+  }
+
+  async setStorage(type: string, key: string, value: string): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.executeScript(
+      `${type}.setItem(${JSON.stringify(key)}, ${JSON.stringify(value)});`,
+    );
+  }
+
+  async deleteStorage(type: string, key: string): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.executeScript(`${type}.removeItem(${JSON.stringify(key)});`);
+  }
+
+  async clearStorage(type: string): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.executeScript(`${type}.clear();`);
+  }
+
   // ---- Cleanup ----
 
   async close(): Promise<void> {
