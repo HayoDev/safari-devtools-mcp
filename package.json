@@ -1,5 +1,6 @@
 {
   "name": "safari-devtools-mcp",
+  "mcpName": "io.github.HayoDev/safari-devtools-mcp",
   "version": "0.1.5",
   "description": "MCP server for Safari DevTools — browser debugging and automation for AI coding agents",
   "type": "module",

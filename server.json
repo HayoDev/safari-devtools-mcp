@@ -1,19 +1,20 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "safari-devtools-mcp",
+  "name": "io.github.HayoDev/safari-devtools-mcp",
   "title": "Safari DevTools MCP",
   "description": "MCP server for Safari DevTools — browser debugging and automation for AI coding agents",
   "repository": {
     "url": "https://github.com/HayoDev/safari-devtools-mcp",
     "source": "github"
   },
-  "version": "0.1.0",
+  "version": "0.0.0",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "safari-devtools-mcp",
-      "version": "0.1.0",
+      "version": "0.0.0",
+      "runtimeHint": "npx",
       "transport": {
         "type": "stdio"
       },
