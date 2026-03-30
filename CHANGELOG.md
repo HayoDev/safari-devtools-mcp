@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.0.0...safari-devtools-mcp-v1.1.0) (2026-03-30)
+
+
+### Features
+
+* improve discoverability with topics, badges, and technical differentiators ([#25](https://github.com/HayoDev/safari-devtools-mcp/issues/25)) ([661a567](https://github.com/HayoDev/safari-devtools-mcp/commit/661a56712119375eddbd154031e00fe1ec1f2aa0))
+
 ## [1.0.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.2.0...safari-devtools-mcp-v1.0.0) (2026-03-30)
 
 
