@@ -14,7 +14,7 @@ Chrome developers get powerful AI debugging through [chrome-devtools-mcp](https:
 
 - **Browser debugging**: Capture console logs, inspect network requests, and evaluate JavaScript — with stack traces and full request/response details.
 - **Reliable automation**: Click, type, fill forms, drag and drop, and press keyboard shortcuts using accessibility-tree snapshots with stable UIDs.
-- **Native macOS integration**: Tab management via AppleScript for listing, switching, and controlling Safari tabs across windows.
+- **Native macOS integration**: Tab management via AppleScript for listing, switching, and controlling Safari tabs across windows
 
 ## Requirements
 
