@@ -1,6 +1,9 @@
 # Safari DevTools MCP
 
-[![npm](https://img.shields.io/npm/v/safari-devtools-mcp.svg)](https://npmjs.org/package/safari-devtools-mcp)
+[![npm version](https://img.shields.io/npm/v/safari-devtools-mcp.svg)](https://npmjs.org/package/safari-devtools-mcp)
+[![npm downloads](https://img.shields.io/npm/dm/safari-devtools-mcp.svg)](https://npmjs.org/package/safari-devtools-mcp)
+[![license](https://img.shields.io/npm/l/safari-devtools-mcp.svg)](https://github.com/HayoDev/safari-devtools-mcp/blob/main/LICENSE)
+[![node](https://img.shields.io/node/v/safari-devtools-mcp.svg)](https://npmjs.org/package/safari-devtools-mcp)
 
 `safari-devtools-mcp` lets your coding agent (such as Claude, Cursor, Copilot or Gemini) control and inspect a live Safari browser on macOS. It acts as a Model-Context-Protocol (MCP) server, giving your AI coding assistant access to Safari DevTools for debugging, automation, and testing.
 
@@ -9,6 +12,17 @@ Chrome developers get powerful AI debugging through [chrome-devtools-mcp](https:
 ## [Changelog](./CHANGELOG.md) | [Contributing](./CONTRIBUTING.md)
 
 > **Note:** This server exposes browser content (page data, console logs, network traffic) to MCP clients. Avoid browsing sensitive websites or entering credentials while a session is active.
+
+## Why safari-devtools-mcp?
+
+Unlike AppleScript-only solutions, this project uses **WebDriver** for capabilities that scripting alone cannot provide:
+
+- **Network request/response body capture** — intercepts fetch and XHR calls with full headers, payloads, and timing
+- **DOM snapshots via accessibility tree** — stable element UIDs that survive page re-renders, not brittle CSS selectors
+- **CSS computed style inspection** — read any computed property from any element
+- **Cookie and storage management** — read, write, and delete cookies, localStorage, and sessionStorage
+- **Element-level screenshots** — capture individual elements, not just the full viewport
+- **Session auto-recovery** — detects dead SafariDriver sessions and reconnects transparently
 
 ## Key features
 

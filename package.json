@@ -2,7 +2,7 @@
   "name": "safari-devtools-mcp",
   "mcpName": "io.github.HayoDev/safari-devtools-mcp",
   "version": "1.0.0",
-  "description": "MCP server for Safari DevTools — browser debugging and automation for AI coding agents",
+  "description": "Safari DevTools MCP — real browser debugging with network interception, DOM inspection, cookie/storage management, and CSS analysis for AI agents on macOS",
   "type": "module",
   "main": "build/src/index.js",
   "bin": {
@@ -37,12 +37,23 @@
   "homepage": "https://github.com/HayoDev/safari-devtools-mcp#readme",
   "keywords": [
     "mcp",
+    "mcp-server",
     "safari",
+    "safari-devtools",
     "devtools",
     "debugging",
     "browser-automation",
     "model-context-protocol",
-    "ai-coding"
+    "ai-agents",
+    "ai-coding",
+    "macos",
+    "webkit",
+    "webdriver",
+    "network-interception",
+    "dom-inspection",
+    "claude",
+    "cursor",
+    "copilot"
   ],
   "engines": {
     "node": ">=18.0.0"
