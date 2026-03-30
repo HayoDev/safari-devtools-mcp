@@ -13,7 +13,7 @@ export const takeSnapshotSchema = {
     .boolean()
     .optional()
     .describe(
-      'Whether to include all possible information (tag names, attributes). Default is false.',
+      'Whether to include all possible information (tag names, attributes). Default is true.',
     ),
   filePath: z
     .string()
@@ -24,8 +24,9 @@ export const takeSnapshotSchema = {
 };
 
 export const takeSnapshot: ToolHandler = async (params, driver) => {
-  const tree = await driver.takeSnapshot(params.verbose as boolean | undefined);
-  const text = formatSnapshot(tree, params.verbose as boolean | undefined);
+  const verbose = params.verbose !== false; // default true
+  const tree = await driver.takeSnapshot(verbose);
+  const text = formatSnapshot(tree, verbose);
 
   if (params.filePath) {
     await writeFile(params.filePath as string, text, 'utf-8');

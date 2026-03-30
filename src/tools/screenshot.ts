@@ -50,18 +50,23 @@ export const takeScreenshot: ToolHandler = async (params, driver) => {
     };
   }
 
-  // Check size — if too large, suggest saving to file
+  // Check size — if too large for inline base64, save to temp file
   if (base64Data.length >= 2_000_000) {
     const {tmpdir} = await import('os');
     const {join} = await import('path');
     const tempPath = join(tmpdir(), `safari-screenshot-${Date.now()}.png`);
     const buffer = Buffer.from(base64Data, 'base64');
     await writeFile(tempPath, buffer);
+    const sizeMB = (buffer.length / 1_048_576).toFixed(1);
     return {
       content: [
         {
           type: 'text' as const,
-          text: `${description}\nScreenshot was too large to embed. Saved to ${tempPath}.`,
+          text: [
+            description,
+            `\nScreenshot (${sizeMB} MB) exceeded the 1.5 MB inline limit and was saved to: ${tempPath}`,
+            'Tip: Use the filePath parameter to save directly to a preferred location, or use resize_page to reduce viewport size before capturing.',
+          ].join('\n'),
         },
       ],
     };
