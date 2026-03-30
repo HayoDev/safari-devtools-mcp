@@ -31,21 +31,21 @@ export const CONSOLE_CAPTURE_SCRIPT = `
           try {
             if (typeof arg === 'object') {
               var s = JSON.stringify(arg, null, 2);
-              return s && s.length > 1000 ? s.substring(0, 1000) + '... [truncated]' : s;
+              return s && s.length > 4000 ? s.substring(0, 4000) + '... [truncated]' : s;
             }
             var str = String(arg);
-            return str.length > 1000 ? str.substring(0, 1000) + '... [truncated]' : str;
+            return str.length > 4000 ? str.substring(0, 4000) + '... [truncated]' : str;
           } catch(e) {
-            return String(arg).substring(0, 1000);
+            return String(arg).substring(0, 4000);
           }
         }).join(' '),
         timestamp: Date.now(),
         args: args.map(function(arg) {
           try {
             var s = typeof arg === 'object' ? JSON.stringify(arg) : String(arg);
-            return s && s.length > 2000 ? s.substring(0, 2000) + '... [truncated]' : s;
+            return s && s.length > 8000 ? s.substring(0, 8000) + '... [truncated]' : s;
           } catch(e) {
-            return String(arg).substring(0, 2000);
+            return String(arg).substring(0, 8000);
           }
         })
       };
@@ -67,8 +67,8 @@ export const CONSOLE_CAPTURE_SCRIPT = `
         entry.message = 'Assertion failed: ' + args.slice(1).map(function(a) {
           try {
             var s = typeof a === 'object' ? JSON.stringify(a) : String(a);
-            return s && s.length > 1000 ? s.substring(0, 1000) + '... [truncated]' : s;
-          } catch(e) { return String(a).substring(0, 1000); }
+            return s && s.length > 4000 ? s.substring(0, 4000) + '... [truncated]' : s;
+          } catch(e) { return String(a).substring(0, 4000); }
         }).join(' ');
       }
 
@@ -103,7 +103,7 @@ export const CONSOLE_CAPTURE_SCRIPT = `
     var message = 'Unhandled Promise Rejection: ';
     try {
       var r = event.reason instanceof Error ? event.reason.message : JSON.stringify(event.reason);
-      message += r && r.length > 1000 ? r.substring(0, 1000) + '... [truncated]' : r;
+      message += r && r.length > 4000 ? r.substring(0, 4000) + '... [truncated]' : r;
     } catch(e) {
       message += String(event.reason);
     }
