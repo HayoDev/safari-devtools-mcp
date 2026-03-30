@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.8](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.7...safari-devtools-mcp-v0.1.8) (2026-03-26)
+
+
+### Features
+
+* improve reliability with smart navigation waits, network dedup,… ([#15](https://github.com/HayoDev/safari-devtools-mcp/issues/15)) ([b74fb3e](https://github.com/HayoDev/safari-devtools-mcp/commit/b74fb3efe29cda85ffce9efc3f6a12f482469a91))
+
 ## [0.1.7](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.6...safari-devtools-mcp-v0.1.7) (2026-03-26)
 
 
