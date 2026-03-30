@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.8...safari-devtools-mcp-v0.2.0) (2026-03-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* Snapshots now default to verbose mode (tag names, attributes included). Pass verbose: false for the previous compact behavior.
+
+### Features
+
+* improve DX defaults for AI agents ([#18](https://github.com/HayoDev/safari-devtools-mcp/issues/18)) ([005d584](https://github.com/HayoDev/safari-devtools-mcp/commit/005d58495d41da81a0a251ca2841feacb9342e9d))
+
 ## [0.1.8](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.7...safari-devtools-mcp-v0.1.8) (2026-03-26)
 
 
