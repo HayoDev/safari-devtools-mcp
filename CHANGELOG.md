@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.2.0...safari-devtools-mcp-v1.0.0) (2026-03-30)
+
+
+### Bug Fixes
+
+* use [@latest](https://github.com/latest) tag in instructions ([151e500](https://github.com/HayoDev/safari-devtools-mcp/commit/151e5003cec71f862f9f5a985cdbf84497bba5cb))
+* use [@latest](https://github.com/latest) tag in instructions ([#22](https://github.com/HayoDev/safari-devtools-mcp/issues/22)) ([151e500](https://github.com/HayoDev/safari-devtools-mcp/commit/151e5003cec71f862f9f5a985cdbf84497bba5cb))
+
 ## [0.2.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v0.1.8...safari-devtools-mcp-v0.2.0) (2026-03-30)
 
 
