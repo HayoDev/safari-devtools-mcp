@@ -118,7 +118,7 @@ Add the standard config to your `.junie/mcp.json` in the project root.
 Open "Install MCP Server" in Raycast and fill in:
 
 - **Command**: `npx`
-- **Arguments**: `-y safari-devtools-mcp`
+- **Arguments**: `-y safari-devtools-mcp@latest`
 
 Or copy the standard config JSON above before opening the command — Raycast will auto-fill the form.
 
