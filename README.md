@@ -15,7 +15,7 @@ Chrome developers get powerful AI debugging through [chrome-devtools-mcp](https:
 
 ## Why safari-devtools-mcp?
 
-Unlike AppleScript-only solutions, this project uses **WebDriver** for capabilities that scripting alone cannot provide:
+This project uses **WebDriver** for capabilities that scripting alone cannot provide:
 
 - **Network request/response body capture** — intercepts fetch and XHR calls with full headers, payloads, and timing
 - **DOM snapshots via accessibility tree** — stable element UIDs that survive page re-renders, not brittle CSS selectors
@@ -182,7 +182,7 @@ Then point your MCP client to the built entry point:
 
 > Navigate to https://example.com, take a snapshot, and list any console errors.
 
-## Tools (25)
+## Tools (41)
 
 ### Debugging
 
@@ -190,11 +190,22 @@ Then point your MCP client to the built entry point:
 | ----------------------- | ----------------------------------------------------------------------------- |
 | `list_console_messages` | List console messages with filtering by level (log, warn, error)              |
 | `get_console_message`   | Get a detailed message including stack trace and arguments                    |
+| `clear_console`         | Clear all captured console messages                                           |
 | `list_network_requests` | Monitor network requests — Fetch, XHR, and resource loads                     |
 | `get_network_request`   | Get full request/response details with headers and body                       |
+| `clear_network`         | Clear all captured network requests                                           |
 | `evaluate_script`       | Execute JavaScript in the browser context and return results                  |
 | `take_screenshot`       | Capture a PNG screenshot of the page or a specific element                    |
 | `take_snapshot`         | Accessibility-tree snapshot of the DOM with stable UIDs for element targeting |
+
+### Page content
+
+| Tool               | Description                                                 |
+| ------------------ | ----------------------------------------------------------- |
+| `get_page_content` | Get the page title, URL, and visible text content           |
+| `get_html_source`  | Get the full HTML source of the page                        |
+| `extract_links`    | Extract all links with their text, href, and rel attributes |
+| `extract_meta`     | Extract meta tags (og:, twitter:, description, etc.)        |
 
 ### Navigation
 
@@ -209,19 +220,45 @@ Then point your MCP client to the built entry point:
 | `resize_page`   | Resize the browser window                                  |
 | `handle_dialog` | Accept or dismiss browser dialogs (alert, confirm, prompt) |
 
+### Scroll
+
+| Tool                | Description                                        |
+| ------------------- | -------------------------------------------------- |
+| `scroll`            | Scroll the page in any direction by a given amount |
+| `scroll_to_element` | Scroll an element into view by its UID             |
+
+### CSS inspection
+
+| Tool                 | Description                                    |
+| -------------------- | ---------------------------------------------- |
+| `get_computed_style` | Get computed CSS styles for any element by UID |
+
+### Cookies & storage
+
+| Tool             | Description                                                        |
+| ---------------- | ------------------------------------------------------------------ |
+| `get_cookies`    | Get browser cookies, optionally filtered by name or domain         |
+| `set_cookie`     | Set a cookie with name, value, and optional attributes             |
+| `delete_cookie`  | Delete a cookie by name, or delete all cookies                     |
+| `get_storage`    | Read from localStorage or sessionStorage                           |
+| `set_storage`    | Write a key-value pair to localStorage or sessionStorage           |
+| `delete_storage` | Delete a key or clear all entries from localStorage/sessionStorage |
+
 ### Input automation
 
-| Tool          | Description                                          |
-| ------------- | ---------------------------------------------------- |
-| `click`       | Click an element by UID from a snapshot              |
-| `click_at`    | Click at specific x/y coordinates                    |
-| `hover`       | Hover over an element                                |
-| `fill`        | Type into an input field or select from a dropdown   |
-| `fill_form`   | Fill multiple form fields at once                    |
-| `type_text`   | Type text into the currently focused element         |
-| `drag`        | Drag and drop between elements or coordinates        |
-| `press_key`   | Press a key or combination (e.g., `Meta+A`, `Enter`) |
-| `upload_file` | Upload a file through a file input                   |
+| Tool            | Description                                          |
+| --------------- | ---------------------------------------------------- |
+| `click`         | Click an element by UID from a snapshot              |
+| `click_at`      | Click at specific x/y coordinates                    |
+| `right_click`   | Right-click (context menu) on an element             |
+| `select_option` | Select an option from a dropdown by value or label   |
+| `hover`         | Hover over an element                                |
+| `fill`          | Type into an input field or select from a dropdown   |
+| `fill_form`     | Fill multiple form fields at once                    |
+| `type_text`     | Type text into the currently focused element         |
+| `drag`          | Drag and drop between elements or coordinates        |
+| `press_key`     | Press a key or combination (e.g., `Meta+A`, `Enter`) |
+| `upload_file`   | Upload a file through a file input                   |
 
 ## Architecture
 

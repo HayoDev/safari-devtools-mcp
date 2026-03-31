@@ -78,6 +78,57 @@ export const clickAt: ToolHandler = async (params, driver) => {
   };
 };
 
+// ---- right_click ----
+
+export const rightClickSchema = {
+  uid: z
+    .string()
+    .describe(
+      'The uid of an element on the page from the page content snapshot',
+    ),
+};
+
+export const rightClick: ToolHandler = async (params, driver) => {
+  await driver.rightClick(params.uid as string);
+  return {
+    content: [
+      {
+        type: 'text' as const,
+        text: 'Successfully right-clicked on the element.',
+      },
+    ],
+  };
+};
+
+// ---- select_option ----
+
+export const selectOptionSchema = {
+  uid: z
+    .string()
+    .describe('The uid of a <select> element from the page content snapshot.'),
+  value: z.string().optional().describe('The option value to select.'),
+  label: z
+    .string()
+    .optional()
+    .describe('The visible text of the option to select.'),
+};
+
+export const selectOption: ToolHandler = async (params, driver) => {
+  await driver.selectOption(
+    params.uid as string,
+    params.value as string | undefined,
+    params.label as string | undefined,
+  );
+  return {
+    content: [
+      {
+        type: 'text' as const,
+        text: `Selected option${params.label ? ` "${params.label}"` : ''}${params.value ? ` (value: ${params.value})` : ''}.`,
+      },
+    ],
+  };
+};
+
 // ---- hover ----
 
 export const hoverSchema = {
