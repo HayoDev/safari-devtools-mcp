@@ -66,6 +66,20 @@ export const listNetworkRequests: ToolHandler = async (params, driver) => {
   };
 };
 
+export const clearNetworkSchema = {};
+
+export const clearNetwork: ToolHandler = async (_params, driver) => {
+  await driver.clearNetworkLogs();
+  return {
+    content: [
+      {
+        type: 'text' as const,
+        text: 'Network logs cleared.',
+      },
+    ],
+  };
+};
+
 export const getNetworkRequestSchema = {
   reqid: z
     .number()

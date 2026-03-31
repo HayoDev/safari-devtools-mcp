@@ -68,6 +68,20 @@ export const listConsoleMessages: ToolHandler = async (params, driver) => {
   };
 };
 
+export const clearConsoleSchema = {};
+
+export const clearConsole: ToolHandler = async (_params, driver) => {
+  await driver.clearConsoleLogs();
+  return {
+    content: [
+      {
+        type: 'text' as const,
+        text: 'Console messages cleared.',
+      },
+    ],
+  };
+};
+
 export const getConsoleMessageSchema = {
   msgid: z
     .number()

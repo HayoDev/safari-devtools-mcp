@@ -455,6 +455,142 @@ export class SafariDriver {
     await element.sendKeys(filePath);
   }
 
+  // ---- Right Click ----
+
+  async rightClick(uid: string): Promise<void> {
+    const driver = await this.ensureDriver();
+    const element = await driver.findElement({
+      css: `[data-safari-uid="${uid}"]`,
+    });
+    const actions = driver.actions({async: true});
+    await actions.contextClick(element).perform();
+  }
+
+  // ---- Select Option ----
+
+  async selectOption(
+    uid: string,
+    value?: string,
+    label?: string,
+  ): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.executeScript(
+      `
+      var select = document.querySelector('[data-safari-uid="${uid}"]');
+      if (!select || select.tagName !== 'SELECT') throw new Error('Element is not a <select>');
+      var options = select.options;
+      for (var i = 0; i < options.length; i++) {
+        if ((arguments[0] && options[i].value === arguments[0]) ||
+            (arguments[1] && options[i].text === arguments[1])) {
+          select.selectedIndex = i;
+          select.dispatchEvent(new Event('change', {bubbles: true}));
+          return;
+        }
+      }
+      throw new Error('Option not found');
+      `,
+      value ?? '',
+      label ?? '',
+    );
+  }
+
+  // ---- Clear Logs ----
+
+  async clearConsoleLogs(): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.executeScript(
+      'window.__safariDevToolsConsoleLogs = [];' +
+        ' window.__safariDevToolsConsoleMsgId = 0;',
+    );
+  }
+
+  async clearNetworkLogs(): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.executeScript(
+      'window.__safariDevToolsNetworkLogs = [];' +
+        ' window.__safariDevToolsNetworkReqId = 0;' +
+        ' if (window.__safariDevToolsInterceptedUrls)' +
+        ' window.__safariDevToolsInterceptedUrls.clear();',
+    );
+  }
+
+  // ---- Page Content ----
+
+  async getPageContent(): Promise<{
+    title: string;
+    url: string;
+    text: string;
+  }> {
+    const driver = await this.ensureDriver();
+    const title = await driver.getTitle();
+    const url = await driver.getCurrentUrl();
+    const text = await driver.executeScript<string>(
+      'var t = (document.body || document.documentElement).innerText || "";' +
+        ' return t.length > 10000 ? t.substring(0, 10000) + "... [truncated]" : t;',
+    );
+    return {title, url, text};
+  }
+
+  async getHtmlSource(): Promise<string> {
+    const driver = await this.ensureDriver();
+    return driver.executeScript<string>(
+      'return document.documentElement.outerHTML;',
+    );
+  }
+
+  async extractLinks(): Promise<{href: string; text: string; rel: string}[]> {
+    const driver = await this.ensureDriver();
+    return driver.executeScript(
+      `var links = document.querySelectorAll('a[href]');
+      var result = [];
+      for (var i = 0; i < links.length; i++) {
+        result.push({
+          href: links[i].href,
+          text: (links[i].textContent || '').trim().substring(0, 200),
+          rel: links[i].getAttribute('rel') || ''
+        });
+      }
+      return result;`,
+    );
+  }
+
+  async extractMeta(): Promise<{name: string; content: string}[]> {
+    const driver = await this.ensureDriver();
+    return driver.executeScript(
+      `var metas = document.querySelectorAll('meta[name], meta[property]');
+      var result = [];
+      for (var i = 0; i < metas.length; i++) {
+        result.push({
+          name: metas[i].getAttribute('name') || metas[i].getAttribute('property') || '',
+          content: metas[i].getAttribute('content') || ''
+        });
+      }
+      return result;`,
+    );
+  }
+
+  // ---- Scroll ----
+
+  async scroll(direction: string, amount: number): Promise<void> {
+    const driver = await this.ensureDriver();
+    const scrollMap: Record<string, [number, number]> = {
+      up: [0, -amount],
+      down: [0, amount],
+      left: [-amount, 0],
+      right: [amount, 0],
+    };
+    const [x, y] = scrollMap[direction] ?? [0, 0];
+    await driver.executeScript(`window.scrollBy(${x}, ${y});`);
+  }
+
+  async scrollToElement(uid: string): Promise<void> {
+    const driver = await this.ensureDriver();
+    await driver.executeScript(
+      `var el = document.querySelector('[data-safari-uid="${uid}"]');` +
+        ` if (el) el.scrollIntoView({behavior: 'smooth', block: 'center'});`,
+    );
+  }
+
   // ---- Page/Window Management ----
 
   async resizePage(width: number, height: number): Promise<void> {

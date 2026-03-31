@@ -15,12 +15,16 @@ import {
   listConsoleMessagesSchema,
   getConsoleMessage,
   getConsoleMessageSchema,
+  clearConsole,
+  clearConsoleSchema,
 } from './tools/console.js';
 import {
   listNetworkRequests,
   listNetworkRequestsSchema,
   getNetworkRequest,
   getNetworkRequestSchema,
+  clearNetwork,
+  clearNetworkSchema,
 } from './tools/network.js';
 import {evaluateScript, evaluateScriptSchema} from './tools/script.js';
 import {takeScreenshot, takeScreenshotSchema} from './tools/screenshot.js';
@@ -68,6 +72,10 @@ import {
   clickSchema,
   clickAt,
   clickAtSchema,
+  rightClick,
+  rightClickSchema,
+  selectOption,
+  selectOptionSchema,
   hover,
   hoverSchema,
   fill,
@@ -83,6 +91,22 @@ import {
   uploadFile,
   uploadFileSchema,
 } from './tools/input.js';
+import {
+  scroll,
+  scrollSchema,
+  scrollToElement,
+  scrollToElementSchema,
+} from './tools/scroll.js';
+import {
+  getPageContent,
+  getPageContentSchema,
+  getHtmlSource,
+  getHtmlSourceSchema,
+  extractLinks,
+  extractLinksSchema,
+  extractMeta,
+  extractMetaSchema,
+} from './tools/page-content.js';
 
 export function createSafariMcpServer(): {
   server: McpServer;
@@ -154,6 +178,13 @@ export function createSafariMcpServer(): {
   );
 
   registerTool(
+    'clear_console',
+    'Clear all captured console messages.',
+    clearConsoleSchema,
+    clearConsole,
+  );
+
+  registerTool(
     'list_network_requests',
     'List all network requests for the currently selected page since the last navigation. Includes historical requests made before monitoring started (with limited detail).',
     listNetworkRequestsSchema,
@@ -165,6 +196,13 @@ export function createSafariMcpServer(): {
     'Gets a network request by its reqid from the listed requests.',
     getNetworkRequestSchema,
     getNetworkRequest,
+  );
+
+  registerTool(
+    'clear_network',
+    'Clear all captured network requests.',
+    clearNetworkSchema,
+    clearNetwork,
   );
 
   registerTool(
@@ -249,6 +287,56 @@ export function createSafariMcpServer(): {
   );
 
   // =====================
+  // PAGE CONTENT TOOLS
+  // =====================
+
+  registerTool(
+    'get_page_content',
+    'Get the page title, URL, and visible text content.',
+    getPageContentSchema,
+    getPageContent,
+  );
+
+  registerTool(
+    'get_html_source',
+    'Get the full HTML source of the current page.',
+    getHtmlSourceSchema,
+    getHtmlSource,
+  );
+
+  registerTool(
+    'extract_links',
+    'Extract all links from the current page with their text and href.',
+    extractLinksSchema,
+    extractLinks,
+  );
+
+  registerTool(
+    'extract_meta',
+    'Extract meta tags from the current page (og:, twitter:, description, etc.).',
+    extractMetaSchema,
+    extractMeta,
+  );
+
+  // =====================
+  // SCROLL TOOLS
+  // =====================
+
+  registerTool(
+    'scroll',
+    'Scroll the page in a direction by a given amount of pixels.',
+    scrollSchema,
+    scroll,
+  );
+
+  registerTool(
+    'scroll_to_element',
+    'Scroll an element into view by its UID from a snapshot.',
+    scrollToElementSchema,
+    scrollToElement,
+  );
+
+  // =====================
   // CSS TOOLS
   // =====================
 
@@ -316,6 +404,20 @@ export function createSafariMcpServer(): {
     'Clicks at the provided coordinates.',
     clickAtSchema,
     clickAt,
+  );
+
+  registerTool(
+    'right_click',
+    'Right-click (context click) on the provided element.',
+    rightClickSchema,
+    rightClick,
+  );
+
+  registerTool(
+    'select_option',
+    'Select an option from a <select> dropdown by value or visible label.',
+    selectOptionSchema,
+    selectOption,
   );
 
   registerTool('hover', 'Hover over the provided element.', hoverSchema, hover);
