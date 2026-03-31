@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.1.0...safari-devtools-mcp-v1.2.0) (2026-03-31)
+
+
+### Features
+
+* expand tooling to 41 tools with page content, scroll, input, and cleanup capabilities ([#27](https://github.com/HayoDev/safari-devtools-mcp/issues/27)) ([5ad6f52](https://github.com/HayoDev/safari-devtools-mcp/commit/5ad6f52936289239d5d796daa465c3d1269a0981))
+
 ## [1.1.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.0.0...safari-devtools-mcp-v1.1.0) (2026-03-30)
 
 
