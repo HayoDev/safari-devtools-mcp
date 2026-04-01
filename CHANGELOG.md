@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.1](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.2.0...safari-devtools-mcp-v1.2.1) (2026-04-01)
+
+
+### Code Refactoring
+
+* migrate to oxlint and modernize tool architecture ([#29](https://github.com/HayoDev/safari-devtools-mcp/issues/29)) ([8be1eee](https://github.com/HayoDev/safari-devtools-mcp/commit/8be1eeeb4ec862169b3c7cb70cf791f9804de0a8))
+
 ## [1.2.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.1.0...safari-devtools-mcp-v1.2.0) (2026-03-31)
 
 

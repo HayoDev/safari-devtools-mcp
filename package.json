@@ -1,7 +1,7 @@
 {
   "name": "safari-devtools-mcp",
   "mcpName": "io.github.HayoDev/safari-devtools-mcp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Safari DevTools MCP — real browser debugging with network interception, DOM inspection, cookie/storage management, and CSS analysis for AI agents on macOS",
   "type": "module",
   "main": "build/src/index.js",
