@@ -5,113 +5,123 @@
 
 import {z} from 'zod';
 import {writeFile} from 'fs/promises';
-import type {ToolHandler} from './types.js';
+import {defineTool} from './types.js';
 
-// ---- get_page_content ----
+export const tools = [
+  defineTool({
+    name: 'get_page_content',
+    description: 'Get the page title, URL, and visible text content.',
+    schema: {},
+    handler: async (_params, driver) => {
+      const result = await driver.getPageContent();
+      const lines = [
+        `Title: ${result.title}`,
+        `URL: ${result.url}`,
+        '',
+        result.text,
+      ];
 
-export const getPageContentSchema = {};
+      return {
+        content: [{type: 'text' as const, text: lines.join('\n')}],
+      };
+    },
+  }),
 
-export const getPageContent: ToolHandler = async (_params, driver) => {
-  const result = await driver.getPageContent();
-  const lines = [
-    `Title: ${result.title}`,
-    `URL: ${result.url}`,
-    '',
-    result.text,
-  ];
+  defineTool({
+    name: 'get_html_source',
+    description: 'Get the full HTML source of the current page.',
+    schema: {
+      filePath: z
+        .string()
+        .optional()
+        .describe(
+          'Absolute or relative path to save the HTML source' +
+            ' to instead of returning it.',
+        ),
+    },
+    handler: async (params, driver) => {
+      const html = await driver.getHtmlSource();
 
-  return {
-    content: [{type: 'text' as const, text: lines.join('\n')}],
-  };
-};
+      if (params.filePath) {
+        await writeFile(params.filePath, html, 'utf-8');
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `HTML source saved to ${params.filePath}.`,
+            },
+          ],
+        };
+      }
 
-// ---- get_html_source ----
+      return {
+        content: [{type: 'text' as const, text: html}],
+      };
+    },
+  }),
 
-export const getHtmlSourceSchema = {
-  filePath: z
-    .string()
-    .optional()
-    .describe(
-      'Absolute or relative path to save the HTML source' +
-        ' to instead of returning it.',
-    ),
-};
+  defineTool({
+    name: 'extract_links',
+    description:
+      'Extract all links from the current page with their text and href.',
+    schema: {},
+    handler: async (_params, driver) => {
+      const links = await driver.extractLinks();
 
-export const getHtmlSource: ToolHandler = async (params, driver) => {
-  const html = await driver.getHtmlSource();
+      if (links.length === 0) {
+        return {
+          content: [
+            {type: 'text' as const, text: 'No links found on the page.'},
+          ],
+        };
+      }
 
-  if (params.filePath) {
-    await writeFile(String(params.filePath), html, 'utf-8');
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: `HTML source saved to ${params.filePath}.`,
-        },
-      ],
-    };
-  }
+      const lines = links.map(
+        l =>
+          `  ${l.text || '(no text)'} -> ${l.href}` +
+          (l.rel ? ` [rel=${l.rel}]` : ''),
+      );
 
-  return {
-    content: [{type: 'text' as const, text: html}],
-  };
-};
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: `Found ${links.length} link(s):\n${lines.join('\n')}`,
+          },
+        ],
+      };
+    },
+  }),
 
-// ---- extract_links ----
+  defineTool({
+    name: 'extract_meta',
+    description:
+      'Extract meta tags from the current page (og:, twitter:, description, etc.).',
+    schema: {},
+    handler: async (_params, driver) => {
+      const meta = await driver.extractMeta();
 
-export const extractLinksSchema = {};
+      if (meta.length === 0) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: 'No meta tags found on the page.',
+            },
+          ],
+        };
+      }
 
-export const extractLinks: ToolHandler = async (_params, driver) => {
-  const links = await driver.extractLinks();
+      const lines = meta.map(m => `  ${m.name}: ${m.content}`);
 
-  if (links.length === 0) {
-    return {
-      content: [{type: 'text' as const, text: 'No links found on the page.'}],
-    };
-  }
-
-  const lines = links.map(
-    l =>
-      `  ${l.text || '(no text)'} -> ${l.href}` +
-      (l.rel ? ` [rel=${l.rel}]` : ''),
-  );
-
-  return {
-    content: [
-      {
-        type: 'text' as const,
-        text: `Found ${links.length} link(s):\n${lines.join('\n')}`,
-      },
-    ],
-  };
-};
-
-// ---- extract_meta ----
-
-export const extractMetaSchema = {};
-
-export const extractMeta: ToolHandler = async (_params, driver) => {
-  const meta = await driver.extractMeta();
-
-  if (meta.length === 0) {
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: 'No meta tags found on the page.',
-        },
-      ],
-    };
-  }
-
-  const lines = meta.map(m => `  ${m.name}: ${m.content}`);
-
-  return {
-    content: [
-      {
-        type: 'text' as const,
-        text: `Found ${meta.length} meta tag(s):\n` + lines.join('\n'),
-      },
-    ],
-  };
-};
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: `Found ${meta.length} meta tag(s):\n` + lines.join('\n'),
+          },
+        ],
+      };
+    },
+  }),
+];

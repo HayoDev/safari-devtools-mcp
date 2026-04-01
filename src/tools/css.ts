@@ -3,21 +3,7 @@
  */
 
 import {z} from 'zod';
-import type {ToolHandler} from './types.js';
-
-export const getComputedStyleSchema = {
-  uid: z
-    .string()
-    .describe(
-      'The uid of an element on the page from the page content snapshot.',
-    ),
-  properties: z
-    .array(z.string())
-    .optional()
-    .describe(
-      'Specific CSS properties to return (e.g. ["color", "font-size", "display"]). When omitted, returns a curated set of commonly useful properties.',
-    ),
-};
+import {defineTool} from './types.js';
 
 const DEFAULT_PROPERTIES = [
   'display',
@@ -48,47 +34,64 @@ const DEFAULT_PROPERTIES = [
   'box-sizing',
 ];
 
-export const getComputedStyle: ToolHandler = async (params, driver) => {
-  const uid = params.uid as string;
-  const properties =
-    (params.properties as string[] | undefined) ?? DEFAULT_PROPERTIES;
+export const tools = [
+  defineTool({
+    name: 'get_computed_style',
+    description:
+      'Get computed CSS styles for an element by its UID from a snapshot. Returns commonly useful properties by default, or specify exact properties.',
+    schema: {
+      uid: z
+        .string()
+        .describe(
+          'The uid of an element on the page from the page content snapshot.',
+        ),
+      properties: z
+        .array(z.string())
+        .optional()
+        .describe(
+          'Specific CSS properties to return (e.g. ["color", "font-size", "display"]). When omitted, returns a curated set of commonly useful properties.',
+        ),
+    },
+    handler: async (params, driver) => {
+      const properties = params.properties ?? DEFAULT_PROPERTIES;
+      const styles = await driver.getComputedStyle(params.uid, properties);
 
-  const styles = await driver.getComputedStyle(uid, properties);
+      if (!styles) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Element with uid="${params.uid}" not found. Take a snapshot first.`,
+            },
+          ],
+        };
+      }
 
-  if (!styles) {
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: `Element with uid="${uid}" not found. Take a snapshot first.`,
-        },
-      ],
-    };
-  }
+      const lines = Object.entries(styles)
+        .filter(
+          ([, v]) => v !== '' && v !== 'none' && v !== 'normal' && v !== 'auto',
+        )
+        .map(([k, v]) => `  ${k}: ${v}`);
 
-  const lines = Object.entries(styles)
-    .filter(
-      ([, v]) => v !== '' && v !== 'none' && v !== 'normal' && v !== 'auto',
-    )
-    .map(([k, v]) => `  ${k}: ${v}`);
+      if (lines.length === 0) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `No notable computed styles for uid="${params.uid}".`,
+            },
+          ],
+        };
+      }
 
-  if (lines.length === 0) {
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: `No notable computed styles for uid="${uid}".`,
-        },
-      ],
-    };
-  }
-
-  return {
-    content: [
-      {
-        type: 'text' as const,
-        text: `Computed styles for uid="${uid}":\n\n${lines.join('\n')}`,
-      },
-    ],
-  };
-};
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: `Computed styles for uid="${params.uid}":\n\n${lines.join('\n')}`,
+          },
+        ],
+      };
+    },
+  }),
+];

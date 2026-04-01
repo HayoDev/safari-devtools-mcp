@@ -73,7 +73,7 @@ src/
 ## Code Style
 
 - TypeScript strict mode
-- ESLint + Prettier enforced (run `npm run format`)
+- Oxlint + Oxfmt enforced (run `npm run format`)
 - Prefer `const` over `let`
 - Use consistent type imports (`import type {Foo}`)
 - Keep injected scripts (in `src/injected/`) as vanilla JS for browser compatibility
