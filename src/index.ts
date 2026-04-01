@@ -6,107 +6,37 @@
  */
 
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
-import type {ZodTypeAny} from 'zod';
 import {SafariDriver} from './SafariDriver.js';
+import type {ToolDef} from './tools/types.js';
 
-// Tool handlers
-import {
-  listConsoleMessages,
-  listConsoleMessagesSchema,
-  getConsoleMessage,
-  getConsoleMessageSchema,
-  clearConsole,
-  clearConsoleSchema,
-} from './tools/console.js';
-import {
-  listNetworkRequests,
-  listNetworkRequestsSchema,
-  getNetworkRequest,
-  getNetworkRequestSchema,
-  clearNetwork,
-  clearNetworkSchema,
-} from './tools/network.js';
-import {evaluateScript, evaluateScriptSchema} from './tools/script.js';
-import {takeScreenshot, takeScreenshotSchema} from './tools/screenshot.js';
-import {
-  takeSnapshot,
-  takeSnapshotSchema,
-  waitFor,
-  waitForSchema,
-} from './tools/snapshot.js';
-import {
-  listPages,
-  listPagesSchema,
-  selectPage,
-  selectPageSchema,
-  closePage,
-  closePageSchema,
-  newPage,
-  newPageSchema,
-  navigatePage,
-  navigatePageSchema,
-  resizePage,
-  resizePageSchema,
-  handleDialog,
-  handleDialogSchema,
-} from './tools/pages.js';
-import {getComputedStyle, getComputedStyleSchema} from './tools/css.js';
-import {
-  getCookies,
-  getCookiesSchema,
-  setCookie,
-  setCookieSchema,
-  deleteCookie,
-  deleteCookieSchema,
-} from './tools/cookies.js';
-import {
-  getStorage,
-  getStorageSchema,
-  setStorage,
-  setStorageSchema,
-  deleteStorage,
-  deleteStorageSchema,
-} from './tools/storage.js';
-import {
-  click,
-  clickSchema,
-  clickAt,
-  clickAtSchema,
-  rightClick,
-  rightClickSchema,
-  selectOption,
-  selectOptionSchema,
-  hover,
-  hoverSchema,
-  fill,
-  fillSchema,
-  fillForm,
-  fillFormSchema,
-  typeText,
-  typeTextSchema,
-  drag,
-  dragSchema,
-  pressKey,
-  pressKeySchema,
-  uploadFile,
-  uploadFileSchema,
-} from './tools/input.js';
-import {
-  scroll,
-  scrollSchema,
-  scrollToElement,
-  scrollToElementSchema,
-} from './tools/scroll.js';
-import {
-  getPageContent,
-  getPageContentSchema,
-  getHtmlSource,
-  getHtmlSourceSchema,
-  extractLinks,
-  extractLinksSchema,
-  extractMeta,
-  extractMetaSchema,
-} from './tools/page-content.js';
+// Tool modules — each exports a `tools` array
+import {tools as consoleTools} from './tools/console.js';
+import {tools as networkTools} from './tools/network.js';
+import {tools as scriptTools} from './tools/script.js';
+import {tools as screenshotTools} from './tools/screenshot.js';
+import {tools as snapshotTools} from './tools/snapshot.js';
+import {tools as pagesTools} from './tools/pages.js';
+import {tools as pageContentTools} from './tools/page-content.js';
+import {tools as scrollTools} from './tools/scroll.js';
+import {tools as cssTools} from './tools/css.js';
+import {tools as cookieTools} from './tools/cookies.js';
+import {tools as storageTools} from './tools/storage.js';
+import {tools as inputTools} from './tools/input.js';
+
+const allTools: ToolDef[] = [
+  ...consoleTools,
+  ...networkTools,
+  ...scriptTools,
+  ...screenshotTools,
+  ...snapshotTools,
+  ...pagesTools,
+  ...pageContentTools,
+  ...scrollTools,
+  ...cssTools,
+  ...cookieTools,
+  ...storageTools,
+  ...inputTools,
+];
 
 export function createSafariMcpServer(): {
   server: McpServer;
@@ -126,25 +56,10 @@ export function createSafariMcpServer(): {
 
   const driver = new SafariDriver();
 
-  // Helper to register a tool
-  function registerTool(
-    name: string,
-    description: string,
-    schema: Record<string, ZodTypeAny>,
-    handler: (
-      params: Record<string, unknown>,
-      driver: SafariDriver,
-    ) => Promise<{
-      content: (
-        | {type: 'text'; text: string}
-        | {type: 'image'; data: string; mimeType: string}
-      )[];
-      isError?: boolean;
-    }>,
-  ) {
-    server.tool(name, description, schema, async params => {
+  for (const tool of allTools) {
+    server.tool(tool.name, tool.description, tool.schema, async params => {
       try {
-        return await handler(params, driver);
+        return await tool.handler(params, driver);
       } catch (error) {
         return {
           content: [
@@ -158,311 +73,6 @@ export function createSafariMcpServer(): {
       }
     });
   }
-
-  // =====================
-  // DEBUGGING TOOLS (highest priority)
-  // =====================
-
-  registerTool(
-    'list_console_messages',
-    'List all console messages for the currently selected page since the last navigation.',
-    listConsoleMessagesSchema,
-    listConsoleMessages,
-  );
-
-  registerTool(
-    'get_console_message',
-    'Gets a console message by its ID. You can get all messages by calling list_console_messages.',
-    getConsoleMessageSchema,
-    getConsoleMessage,
-  );
-
-  registerTool(
-    'clear_console',
-    'Clear all captured console messages.',
-    clearConsoleSchema,
-    clearConsole,
-  );
-
-  registerTool(
-    'list_network_requests',
-    'List all network requests for the currently selected page since the last navigation. Includes historical requests made before monitoring started (with limited detail).',
-    listNetworkRequestsSchema,
-    listNetworkRequests,
-  );
-
-  registerTool(
-    'get_network_request',
-    'Gets a network request by its reqid from the listed requests.',
-    getNetworkRequestSchema,
-    getNetworkRequest,
-  );
-
-  registerTool(
-    'clear_network',
-    'Clear all captured network requests.',
-    clearNetworkSchema,
-    clearNetwork,
-  );
-
-  registerTool(
-    'evaluate_script',
-    'Evaluate a JavaScript function inside the currently selected page. Returns the response as JSON, so returned values have to be JSON-serializable.',
-    evaluateScriptSchema,
-    evaluateScript,
-  );
-
-  registerTool(
-    'take_screenshot',
-    'Take a screenshot of the page or element.',
-    takeScreenshotSchema,
-    takeScreenshot,
-  );
-
-  registerTool(
-    'take_snapshot',
-    'Take a text snapshot of the currently selected page based on the DOM/a11y tree. The snapshot lists page elements along with a unique identifier (uid). Always use the latest snapshot. Prefer taking a snapshot over taking a screenshot.',
-    takeSnapshotSchema,
-    takeSnapshot,
-  );
-
-  // =====================
-  // NAVIGATION TOOLS
-  // =====================
-
-  registerTool(
-    'list_pages',
-    'Get a list of pages (tabs) open in Safari.',
-    listPagesSchema,
-    listPages,
-  );
-
-  registerTool(
-    'select_page',
-    'Select a page as context for future tool calls.',
-    selectPageSchema,
-    selectPage,
-  );
-
-  registerTool(
-    'close_page',
-    'Closes a page by its ID. The last open page cannot be closed.',
-    closePageSchema,
-    closePage,
-  );
-
-  registerTool(
-    'new_page',
-    'Open a new tab and load a URL.',
-    newPageSchema,
-    newPage,
-  );
-
-  registerTool(
-    'navigate_page',
-    'Go to a URL, or back, forward, or reload.',
-    navigatePageSchema,
-    navigatePage,
-  );
-
-  registerTool(
-    'wait_for',
-    'Wait for the specified text to appear on the selected page.',
-    waitForSchema,
-    waitFor,
-  );
-
-  registerTool(
-    'resize_page',
-    "Resizes the selected page's window so that the page has specified dimensions.",
-    resizePageSchema,
-    resizePage,
-  );
-
-  registerTool(
-    'handle_dialog',
-    'If a browser dialog was opened, use this command to handle it.',
-    handleDialogSchema,
-    handleDialog,
-  );
-
-  // =====================
-  // PAGE CONTENT TOOLS
-  // =====================
-
-  registerTool(
-    'get_page_content',
-    'Get the page title, URL, and visible text content.',
-    getPageContentSchema,
-    getPageContent,
-  );
-
-  registerTool(
-    'get_html_source',
-    'Get the full HTML source of the current page.',
-    getHtmlSourceSchema,
-    getHtmlSource,
-  );
-
-  registerTool(
-    'extract_links',
-    'Extract all links from the current page with their text and href.',
-    extractLinksSchema,
-    extractLinks,
-  );
-
-  registerTool(
-    'extract_meta',
-    'Extract meta tags from the current page (og:, twitter:, description, etc.).',
-    extractMetaSchema,
-    extractMeta,
-  );
-
-  // =====================
-  // SCROLL TOOLS
-  // =====================
-
-  registerTool(
-    'scroll',
-    'Scroll the page in a direction by a given amount of pixels.',
-    scrollSchema,
-    scroll,
-  );
-
-  registerTool(
-    'scroll_to_element',
-    'Scroll an element into view by its UID from a snapshot.',
-    scrollToElementSchema,
-    scrollToElement,
-  );
-
-  // =====================
-  // CSS TOOLS
-  // =====================
-
-  registerTool(
-    'get_computed_style',
-    'Get computed CSS styles for an element by its UID from a snapshot. Returns commonly useful properties by default, or specify exact properties.',
-    getComputedStyleSchema,
-    getComputedStyle,
-  );
-
-  // =====================
-  // COOKIE & STORAGE TOOLS
-  // =====================
-
-  registerTool(
-    'get_cookies',
-    'Get browser cookies for the current page. Optionally filter by name or domain.',
-    getCookiesSchema,
-    getCookies,
-  );
-
-  registerTool(
-    'set_cookie',
-    'Set a browser cookie with the given name, value, and optional attributes.',
-    setCookieSchema,
-    setCookie,
-  );
-
-  registerTool(
-    'delete_cookie',
-    'Delete a cookie by name, or delete all cookies when no name is provided.',
-    deleteCookieSchema,
-    deleteCookie,
-  );
-
-  registerTool(
-    'get_storage',
-    'Read from localStorage or sessionStorage. Returns all entries or a specific key.',
-    getStorageSchema,
-    getStorage,
-  );
-
-  registerTool(
-    'set_storage',
-    'Write a key-value pair to localStorage or sessionStorage.',
-    setStorageSchema,
-    setStorage,
-  );
-
-  registerTool(
-    'delete_storage',
-    'Delete a key from localStorage or sessionStorage, or clear all entries.',
-    deleteStorageSchema,
-    deleteStorage,
-  );
-
-  // =====================
-  // INPUT TOOLS
-  // =====================
-
-  registerTool('click', 'Clicks on the provided element.', clickSchema, click);
-
-  registerTool(
-    'click_at',
-    'Clicks at the provided coordinates.',
-    clickAtSchema,
-    clickAt,
-  );
-
-  registerTool(
-    'right_click',
-    'Right-click (context click) on the provided element.',
-    rightClickSchema,
-    rightClick,
-  );
-
-  registerTool(
-    'select_option',
-    'Select an option from a <select> dropdown by value or visible label.',
-    selectOptionSchema,
-    selectOption,
-  );
-
-  registerTool('hover', 'Hover over the provided element.', hoverSchema, hover);
-
-  registerTool(
-    'fill',
-    'Type text into an input, text area or select an option from a <select> element.',
-    fillSchema,
-    fill,
-  );
-
-  registerTool(
-    'fill_form',
-    'Fill out multiple form elements at once.',
-    fillFormSchema,
-    fillForm,
-  );
-
-  registerTool(
-    'type_text',
-    'Type text using keyboard into a previously focused input.',
-    typeTextSchema,
-    typeText,
-  );
-
-  registerTool(
-    'drag',
-    'Drag an element onto another element.',
-    dragSchema,
-    drag,
-  );
-
-  registerTool(
-    'press_key',
-    'Press a key or key combination. Use this when other input methods like fill() cannot be used.',
-    pressKeySchema,
-    pressKey,
-  );
-
-  registerTool(
-    'upload_file',
-    'Upload a file through a provided file input element.',
-    uploadFileSchema,
-    uploadFile,
-  );
 
   return {server, driver};
 }

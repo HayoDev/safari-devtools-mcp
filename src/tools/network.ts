@@ -8,7 +8,7 @@ import {
   formatNetworkRequest,
   formatNetworkRequests,
 } from '../formatters/NetworkFormatter.js';
-import type {ToolHandler} from './types.js';
+import {defineTool} from './types.js';
 
 const FILTERABLE_RESOURCE_TYPES = [
   'document',
@@ -23,83 +23,96 @@ const FILTERABLE_RESOURCE_TYPES = [
   'other',
 ] as const;
 
-export const listNetworkRequestsSchema = {
-  pageSize: z
-    .number()
-    .int()
-    .positive()
-    .optional()
-    .describe(
-      'Maximum number of requests to return. When omitted, returns all requests.',
-    ),
-  pageIdx: z
-    .number()
-    .int()
-    .min(0)
-    .optional()
-    .describe(
-      'Page number to return (0-based). When omitted, returns the first page.',
-    ),
-  resourceTypes: z
-    .array(z.enum(FILTERABLE_RESOURCE_TYPES))
-    .optional()
-    .describe(
-      'Filter requests to only return requests of the specified resource types. When omitted or empty, returns all requests.',
-    ),
-};
+export const tools = [
+  defineTool({
+    name: 'list_network_requests',
+    description:
+      'List all network requests for the currently selected page since the last navigation. Includes historical requests made before monitoring started (with limited detail).',
+    schema: {
+      pageSize: z
+        .number()
+        .int()
+        .positive()
+        .optional()
+        .describe(
+          'Maximum number of requests to return. When omitted, returns all requests.',
+        ),
+      pageIdx: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe(
+          'Page number to return (0-based). When omitted, returns the first page.',
+        ),
+      resourceTypes: z
+        .array(z.enum(FILTERABLE_RESOURCE_TYPES))
+        .optional()
+        .describe(
+          'Filter requests to only return requests of the specified resource types. When omitted or empty, returns all requests.',
+        ),
+    },
+    handler: async (params, driver) => {
+      const allLogs = await driver.getNetworkLogs();
+      const filtered = await driver.getNetworkLogs({
+        resourceTypes: params.resourceTypes,
+        pageSize: params.pageSize,
+        pageIdx: params.pageIdx,
+      });
 
-export const listNetworkRequests: ToolHandler = async (params, driver) => {
-  const allLogs = await driver.getNetworkLogs();
-  const filtered = await driver.getNetworkLogs({
-    resourceTypes: params.resourceTypes as string[] | undefined,
-    pageSize: params.pageSize as number | undefined,
-    pageIdx: params.pageIdx as number | undefined,
-  });
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: formatNetworkRequests(filtered, allLogs.length),
+          },
+        ],
+      };
+    },
+  }),
 
-  return {
-    content: [
-      {
-        type: 'text' as const,
-        text: formatNetworkRequests(filtered, allLogs.length),
-      },
-    ],
-  };
-};
+  defineTool({
+    name: 'get_network_request',
+    description:
+      'Gets a network request by its reqid from the listed requests.',
+    schema: {
+      reqid: z
+        .number()
+        .describe('The reqid of the network request from the listed requests.'),
+    },
+    handler: async (params, driver) => {
+      const log = await driver.getNetworkRequest(params.reqid);
+      if (!log) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: `Network request with reqid=${params.reqid} not found.`,
+            },
+          ],
+        };
+      }
 
-export const clearNetworkSchema = {};
+      return {
+        content: [{type: 'text' as const, text: formatNetworkRequest(log)}],
+      };
+    },
+  }),
 
-export const clearNetwork: ToolHandler = async (_params, driver) => {
-  await driver.clearNetworkLogs();
-  return {
-    content: [
-      {
-        type: 'text' as const,
-        text: 'Network logs cleared.',
-      },
-    ],
-  };
-};
-
-export const getNetworkRequestSchema = {
-  reqid: z
-    .number()
-    .describe('The reqid of the network request from the listed requests.'),
-};
-
-export const getNetworkRequest: ToolHandler = async (params, driver) => {
-  const log = await driver.getNetworkRequest(params.reqid as number);
-  if (!log) {
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: `Network request with reqid=${params.reqid} not found.`,
-        },
-      ],
-    };
-  }
-
-  return {
-    content: [{type: 'text' as const, text: formatNetworkRequest(log)}],
-  };
-};
+  defineTool({
+    name: 'clear_network',
+    description: 'Clear all captured network requests.',
+    schema: {},
+    handler: async (_params, driver) => {
+      await driver.clearNetworkLogs();
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: 'Network logs cleared.',
+          },
+        ],
+      };
+    },
+  }),
+];
