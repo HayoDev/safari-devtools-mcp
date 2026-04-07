@@ -197,6 +197,17 @@ Use `--slim` to reduce token usage with shorter tool descriptions. Useful when w
 }
 ```
 
+## Prompts (skills)
+
+The server exposes guided debugging workflows as MCP prompts. Clients that support prompts (e.g. Claude Desktop, Claude Code) can invoke them by name:
+
+| Prompt                      | Description                                                                      |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| `safari-devtools`           | Getting started — tool overview, recommended workflow, and Safari-specific notes |
+| `a11y-debugging`            | Accessibility audit — a11y tree inspection, axe-core injection, WCAG checks      |
+| `safari-specific-debugging` | Debug WebKit quirks — CSS prefixes, JS feature gaps, ITP/CORS issues             |
+| `performance-debugging`     | Performance analysis — Navigation Timing, Core Web Vitals, resource waterfall    |
+
 ## Tools (41)
 
 ### Debugging
