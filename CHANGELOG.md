@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.2.1...safari-devtools-mcp-v1.3.0) (2026-04-07)
+
+
+### Features
+
+* add --slim mode for reduced token usage ([#31](https://github.com/HayoDev/safari-devtools-mcp/issues/31)) ([288df5f](https://github.com/HayoDev/safari-devtools-mcp/commit/288df5f7944146473167ad5dc99d94ccd4c496eb))
+
 ## [1.2.1](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.2.0...safari-devtools-mcp-v1.2.1) (2026-04-01)
 
 
