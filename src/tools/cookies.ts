@@ -10,6 +10,7 @@ export const tools = [
     name: 'get_cookies',
     description:
       'Get browser cookies for the current page. Optionally filter by name or domain.',
+    slimDescription: 'Get cookies.',
     schema: {
       name: z
         .string()
@@ -66,6 +67,7 @@ export const tools = [
     name: 'set_cookie',
     description:
       'Set a browser cookie with the given name, value, and optional attributes.',
+    slimDescription: 'Set a cookie.',
     schema: {
       name: z.string().describe('Cookie name.'),
       value: z.string().describe('Cookie value.'),
@@ -117,6 +119,7 @@ export const tools = [
     name: 'delete_cookie',
     description:
       'Delete a cookie by name, or delete all cookies when no name is provided.',
+    slimDescription: 'Delete cookies.',
     schema: {
       name: z
         .string()

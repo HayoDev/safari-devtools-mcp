@@ -12,6 +12,7 @@ export const tools = [
     name: 'get_storage',
     description:
       'Read from localStorage or sessionStorage. Returns all entries or a specific key.',
+    slimDescription: 'Read browser storage.',
     schema: {
       storageType: z
         .enum(STORAGE_TYPES)
@@ -74,6 +75,7 @@ export const tools = [
   defineTool({
     name: 'set_storage',
     description: 'Write a key-value pair to localStorage or sessionStorage.',
+    slimDescription: 'Write to browser storage.',
     schema: {
       storageType: z
         .enum(STORAGE_TYPES)
@@ -101,6 +103,7 @@ export const tools = [
     name: 'delete_storage',
     description:
       'Delete a key from localStorage or sessionStorage, or clear all entries.',
+    slimDescription: 'Delete from browser storage.',
     schema: {
       storageType: z
         .enum(STORAGE_TYPES)

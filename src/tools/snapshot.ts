@@ -13,6 +13,7 @@ export const tools = [
     name: 'take_snapshot',
     description:
       'Take a text snapshot of the currently selected page based on the DOM/a11y tree. The snapshot lists page elements along with a unique identifier (uid). Always use the latest snapshot. Prefer taking a snapshot over taking a screenshot.',
+    slimDescription: 'Snapshot the page DOM/a11y tree with element UIDs.',
     schema: {
       verbose: z
         .boolean()
@@ -53,6 +54,7 @@ export const tools = [
   defineTool({
     name: 'wait_for',
     description: 'Wait for the specified text to appear on the selected page.',
+    slimDescription: 'Wait for text on page.',
     schema: {
       text: z
         .array(z.string())

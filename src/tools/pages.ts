@@ -10,6 +10,7 @@ export const tools = [
   defineTool({
     name: 'list_pages',
     description: 'Get a list of pages (tabs) open in Safari.',
+    slimDescription: 'List open pages.',
     schema: {},
     handler: async (_params, driver) => {
       const pages = await driver.listPages();
@@ -33,6 +34,7 @@ export const tools = [
   defineTool({
     name: 'select_page',
     description: 'Select a page as context for future tool calls.',
+    slimDescription: 'Select a page.',
     schema: {
       pageId: z
         .number()
@@ -63,6 +65,7 @@ export const tools = [
     name: 'close_page',
     description:
       'Closes a page by its ID. The last open page cannot be closed.',
+    slimDescription: 'Close a page.',
     schema: {
       pageId: z
         .number()
@@ -98,6 +101,7 @@ export const tools = [
   defineTool({
     name: 'new_page',
     description: 'Open a new tab and load a URL.',
+    slimDescription: 'Open new tab with URL.',
     schema: {
       url: z.string().describe('URL to load in a new page.'),
     },
@@ -116,6 +120,7 @@ export const tools = [
   defineTool({
     name: 'navigate_page',
     description: 'Go to a URL, or back, forward, or reload.',
+    slimDescription: 'Navigate to URL or back/forward/reload.',
     schema: {
       type: z
         .enum(['url', 'back', 'forward', 'reload'])
@@ -223,6 +228,7 @@ export const tools = [
     name: 'resize_page',
     description:
       "Resizes the selected page's window so that the page has specified dimensions.",
+    slimDescription: 'Resize page viewport.',
     schema: {
       width: z.number().describe('Page width'),
       height: z.number().describe('Page height'),
@@ -244,6 +250,7 @@ export const tools = [
     name: 'handle_dialog',
     description:
       'If a browser dialog was opened, use this command to handle it.',
+    slimDescription: 'Accept or dismiss a dialog.',
     schema: {
       action: z
         .enum(['accept', 'dismiss'])

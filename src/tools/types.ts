@@ -17,6 +17,8 @@ export interface ToolResult {
 export interface ToolDef<S extends ZodRawShape = ZodRawShape> {
   name: string;
   description: string;
+  /** Shorter description used when the server runs in `--slim` mode. */
+  slimDescription?: string;
   schema: S;
   handler: (
     params: z.infer<ZodObject<S>>,

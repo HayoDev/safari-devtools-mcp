@@ -14,6 +14,7 @@ export const tools = [
   defineTool({
     name: 'take_screenshot',
     description: 'Take a screenshot of the page or element.',
+    slimDescription: 'Screenshot page or element.',
     schema: {
       uid: z
         .string()
