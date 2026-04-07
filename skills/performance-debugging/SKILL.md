@@ -30,7 +30,7 @@ evaluate_script function="() => {
 }"
 ```
 
-### Core Web Vitals (LCP, CLS, INP)
+### Core Web Vitals (LCP, CLS)
 
 ```
 evaluate_script function="() => {

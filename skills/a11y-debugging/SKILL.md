@@ -24,6 +24,12 @@ Use this skill when auditing a page for accessibility issues in Safari.
 
 4. For a more thorough automated audit, inject axe-core:
 
+   > **Note:** This fetches a script from a public CDN. Two things to be
+   > aware of: (1) a strict Content Security Policy may block it — if the
+   > audit returns no results, check the console for CSP errors; (2) on
+   > internal or authenticated pages, prefer loading axe-core from a local
+   > copy rather than a CDN to avoid sending page context to a third party.
+
    ```
    evaluate_script function="async () => {
      const script = document.createElement('script');

@@ -3,8 +3,9 @@
  *
  * Each prompt surfaces a guided debugging workflow that LLM clients can
  * invoke via the MCP prompts/list and prompts/get protocol. The content
- * is loaded from the matching SKILL.md at build time and returned as a
- * single user message so the LLM receives the full playbook in context.
+ * is read from the matching SKILL.md when prompts are registered and
+ * returned as a single user message so the LLM receives the full
+ * playbook in context.
  */
 
 import {readFileSync} from 'fs';

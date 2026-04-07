@@ -3,6 +3,7 @@ import assert from 'node:assert';
 import {readFileSync, existsSync} from 'fs';
 import {join, dirname} from 'path';
 import {fileURLToPath} from 'url';
+import {registerPrompts} from '../src/prompts.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SKILLS_DIR = join(__dirname, '..', '..', 'skills');
@@ -38,5 +39,22 @@ describe('Skills', () => {
         `${skill}/SKILL.md should start with a heading`,
       );
     }
+  });
+
+  it('registerPrompts registers all expected skill names', () => {
+    const registered: string[] = [];
+    const fakeServer = {
+      prompt: (name: string, _desc: string, _handler: unknown) => {
+        registered.push(name);
+      },
+    };
+    registerPrompts(fakeServer as never);
+    for (const skill of EXPECTED_SKILLS) {
+      assert.ok(
+        registered.includes(skill),
+        `prompt "${skill}" should be registered`,
+      );
+    }
+    assert.strictEqual(registered.length, EXPECTED_SKILLS.length);
   });
 });
