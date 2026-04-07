@@ -10,6 +10,7 @@ export const tools = [
   defineTool({
     name: 'scroll',
     description: 'Scroll the page in a direction by a given amount of pixels.',
+    slimDescription: 'Scroll the page.',
     schema: {
       direction: z
         .enum(['up', 'down', 'left', 'right'])
@@ -36,6 +37,7 @@ export const tools = [
   defineTool({
     name: 'scroll_to_element',
     description: 'Scroll an element into view by its UID from a snapshot.',
+    slimDescription: 'Scroll element into view.',
     schema: {
       uid: z
         .string()

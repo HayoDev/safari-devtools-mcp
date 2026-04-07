@@ -11,6 +11,7 @@ export const tools = [
   defineTool({
     name: 'get_page_content',
     description: 'Get the page title, URL, and visible text content.',
+    slimDescription: 'Get page title, URL, and text.',
     schema: {},
     handler: async (_params, driver) => {
       const result = await driver.getPageContent();
@@ -30,6 +31,7 @@ export const tools = [
   defineTool({
     name: 'get_html_source',
     description: 'Get the full HTML source of the current page.',
+    slimDescription: 'Get HTML source.',
     schema: {
       filePath: z
         .string()
@@ -64,6 +66,7 @@ export const tools = [
     name: 'extract_links',
     description:
       'Extract all links from the current page with their text and href.',
+    slimDescription: 'Extract page links.',
     schema: {},
     handler: async (_params, driver) => {
       const links = await driver.extractLinks();
@@ -97,6 +100,7 @@ export const tools = [
     name: 'extract_meta',
     description:
       'Extract meta tags from the current page (og:, twitter:, description, etc.).',
+    slimDescription: 'Extract meta tags.',
     schema: {},
     handler: async (_params, driver) => {
       const meta = await driver.extractMeta();

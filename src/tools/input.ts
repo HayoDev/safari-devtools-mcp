@@ -10,6 +10,7 @@ export const tools = [
   defineTool({
     name: 'click',
     description: 'Clicks on the provided element.',
+    slimDescription: 'Click element.',
     schema: {
       uid: z
         .string()
@@ -51,6 +52,7 @@ export const tools = [
   defineTool({
     name: 'click_at',
     description: 'Clicks at the provided coordinates.',
+    slimDescription: 'Click at coordinates.',
     schema: {
       x: z.number().describe('The x coordinate'),
       y: z.number().describe('The y coordinate'),
@@ -77,6 +79,7 @@ export const tools = [
   defineTool({
     name: 'right_click',
     description: 'Right-click (context click) on the provided element.',
+    slimDescription: 'Right-click element.',
     schema: {
       uid: z
         .string()
@@ -101,6 +104,7 @@ export const tools = [
     name: 'select_option',
     description:
       'Select an option from a <select> dropdown by value or visible label.',
+    slimDescription: 'Select dropdown option.',
     schema: {
       uid: z
         .string()
@@ -129,6 +133,7 @@ export const tools = [
   defineTool({
     name: 'hover',
     description: 'Hover over the provided element.',
+    slimDescription: 'Hover over element.',
     schema: {
       uid: z
         .string()
@@ -165,6 +170,7 @@ export const tools = [
     name: 'fill',
     description:
       'Type text into an input, text area or select an option from a <select> element.',
+    slimDescription: 'Fill input or select.',
     schema: {
       uid: z
         .string()
@@ -201,6 +207,7 @@ export const tools = [
   defineTool({
     name: 'fill_form',
     description: 'Fill out multiple form elements at once.',
+    slimDescription: 'Batch fill form fields.',
     schema: {
       elements: z
         .array(
@@ -229,6 +236,7 @@ export const tools = [
   defineTool({
     name: 'type_text',
     description: 'Type text using keyboard into a previously focused input.',
+    slimDescription: 'Type text via keyboard.',
     schema: {
       text: z.string().describe('The text to type'),
       submitKey: z
@@ -255,6 +263,7 @@ export const tools = [
   defineTool({
     name: 'drag',
     description: 'Drag an element onto another element.',
+    slimDescription: 'Drag and drop element.',
     schema: {
       from_uid: z.string().describe('The uid of the element to drag'),
       to_uid: z.string().describe('The uid of the element to drop into'),
@@ -276,6 +285,7 @@ export const tools = [
     name: 'press_key',
     description:
       'Press a key or key combination. Use this when other input methods like fill() cannot be used.',
+    slimDescription: 'Press key or combo.',
     schema: {
       key: z
         .string()
@@ -299,6 +309,7 @@ export const tools = [
   defineTool({
     name: 'upload_file',
     description: 'Upload a file through a provided file input element.',
+    slimDescription: 'Upload file to input.',
     schema: {
       uid: z
         .string()

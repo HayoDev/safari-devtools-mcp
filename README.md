@@ -182,6 +182,21 @@ Then point your MCP client to the built entry point:
 
 > Navigate to https://example.com, take a snapshot, and list any console errors.
 
+### Slim mode
+
+Use `--slim` to reduce token usage with shorter tool descriptions. Useful when working with context-limited models or long conversations:
+
+```json
+{
+  "mcpServers": {
+    "safari-devtools": {
+      "command": "npx",
+      "args": ["-y", "safari-devtools-mcp@latest", "--slim"]
+    }
+  }
+}
+```
+
 ## Tools (41)
 
 ### Debugging

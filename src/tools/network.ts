@@ -28,6 +28,7 @@ export const tools = [
     name: 'list_network_requests',
     description:
       'List all network requests for the currently selected page since the last navigation. Includes historical requests made before monitoring started (with limited detail).',
+    slimDescription: 'List network requests.',
     schema: {
       pageSize: z
         .number()
@@ -75,6 +76,7 @@ export const tools = [
     name: 'get_network_request',
     description:
       'Gets a network request by its reqid from the listed requests.',
+    slimDescription: 'Get network request by ID.',
     schema: {
       reqid: z
         .number()
@@ -102,6 +104,7 @@ export const tools = [
   defineTool({
     name: 'clear_network',
     description: 'Clear all captured network requests.',
+    slimDescription: 'Clear network logs.',
     schema: {},
     handler: async (_params, driver) => {
       await driver.clearNetworkLogs();

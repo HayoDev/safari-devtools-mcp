@@ -38,10 +38,17 @@ const allTools: ToolDef[] = [
   ...inputTools,
 ];
 
-export function createSafariMcpServer(): {
+export interface ServerOptions {
+  /** Run in slim mode for reduced token usage. */
+  slim?: boolean;
+}
+
+export function createSafariMcpServer(options: ServerOptions = {}): {
   server: McpServer;
   driver: SafariDriver;
 } {
+  const {slim = false} = options;
+
   const server = new McpServer(
     {
       name: 'safari-devtools-mcp',
@@ -57,7 +64,10 @@ export function createSafariMcpServer(): {
   const driver = new SafariDriver();
 
   for (const tool of allTools) {
-    server.tool(tool.name, tool.description, tool.schema, async params => {
+    const description =
+      slim && tool.slimDescription ? tool.slimDescription : tool.description;
+
+    server.tool(tool.name, description, tool.schema, async params => {
       try {
         return await tool.handler(params, driver);
       } catch (error) {

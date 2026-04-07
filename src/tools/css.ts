@@ -39,6 +39,7 @@ export const tools = [
     name: 'get_computed_style',
     description:
       'Get computed CSS styles for an element by its UID from a snapshot. Returns commonly useful properties by default, or specify exact properties.',
+    slimDescription: 'Get CSS styles for element.',
     schema: {
       uid: z
         .string()
