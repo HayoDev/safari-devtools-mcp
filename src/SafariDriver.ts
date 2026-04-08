@@ -252,6 +252,17 @@ export class SafariDriver {
     return String(result ?? 'undefined');
   }
 
+  /**
+   * Execute a raw JavaScript snippet in the page context.
+   * Unlike `evaluateScript`, this does not wrap code in a function or
+   * JSON-stringify the result — useful for injecting side-effects like
+   * style overrides or matchMedia patches.
+   */
+  async runScript<T = unknown>(script: string): Promise<T> {
+    const driver = await this.ensureDriver();
+    return driver.executeScript<T>(`return ${script}`);
+  }
+
   // ---- Screenshot ----
 
   async takeScreenshot(): Promise<string> {
