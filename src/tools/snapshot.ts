@@ -53,14 +53,34 @@ export const tools = [
 
   defineTool({
     name: 'wait_for',
-    description: 'Wait for the specified text to appear on the selected page.',
-    slimDescription: 'Wait for text on page.',
+    description:
+      'Wait for a condition on the page: text content, a CSS selector, or a JS predicate. Returns a snapshot once the condition is met. At least one condition (text, selector, or predicate) must be provided.',
+    slimDescription: 'Wait for text, selector, or JS condition.',
     schema: {
       text: z
         .array(z.string())
         .min(1)
+        .optional()
         .describe(
-          'Non-empty list of texts. Resolves when any value appears on the page.',
+          'List of texts. Resolves when any value appears in the page body.',
+        ),
+      selector: z
+        .string()
+        .optional()
+        .describe(
+          'CSS selector. Resolves when a matching element exists in the DOM.',
+        ),
+      visible: z
+        .boolean()
+        .optional()
+        .describe(
+          'When true and selector is set, waits for the element to be visible (not just present in DOM). Default is false.',
+        ),
+      predicate: z
+        .string()
+        .optional()
+        .describe(
+          'A JavaScript expression that must return a truthy value. Example: "document.querySelectorAll(\'.item\').length >= 5"',
         ),
       timeout: z
         .number()
@@ -68,9 +88,41 @@ export const tools = [
         .describe('Timeout in milliseconds. Default is 30000.'),
     },
     handler: async (params, driver) => {
+      const hasText = params.text && params.text.length > 0;
+      const hasSelector = !!params.selector;
+      const hasPredicate = !!params.predicate;
+
+      if (!hasText && !hasSelector && !hasPredicate) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: 'At least one condition must be provided: text, selector, or predicate.',
+            },
+          ],
+          isError: true,
+        };
+      }
+
       try {
-        const found = await driver.waitForText(params.text, params.timeout);
-        // Take a snapshot after waiting
+        let matched = '';
+
+        if (hasText) {
+          const found = await driver.waitForText(params.text!, params.timeout);
+          matched = `Text "${found}" found.`;
+        } else if (hasSelector) {
+          await driver.waitForSelector(params.selector!, {
+            visible: params.visible,
+            timeout: params.timeout,
+          });
+          matched = params.visible
+            ? `Selector "${params.selector}" is visible.`
+            : `Selector "${params.selector}" found.`;
+        } else if (hasPredicate) {
+          await driver.waitForFunction(params.predicate!, params.timeout);
+          matched = 'Predicate condition met.';
+        }
+
         const tree = await driver.takeSnapshot();
         const snapshotText = formatSnapshot(tree);
 
@@ -78,7 +130,7 @@ export const tools = [
           content: [
             {
               type: 'text' as const,
-              text: `Element matching "${found}" found.\n\n${snapshotText}`,
+              text: `${matched}\n\n${snapshotText}`,
             },
           ],
         };
