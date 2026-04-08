@@ -24,8 +24,8 @@
     "lint:fix": "oxlint --fix .",
     "format": "oxlint --fix . && oxfmt --write .",
     "check-format": "oxlint . && oxfmt --check .",
-    "test": "npm run build && node --test build/tests/*.test.js build/tests/**/*.test.js",
-    "test:no-build": "node --test build/tests/*.test.js build/tests/**/*.test.js",
+    "test": "npm run build && node --test 'build/tests/**/*.test.js' 'build/tests/*.test.js'",
+    "test:no-build": "node --test 'build/tests/**/*.test.js' 'build/tests/*.test.js'",
     "prepare": "sh scripts/install-hooks.sh"
   },
   "repository": {

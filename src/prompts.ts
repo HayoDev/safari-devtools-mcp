@@ -54,7 +54,15 @@ const skills: SkillDef[] = [
 
 function loadSkillContent(dir: string): string {
   const filePath = join(SKILLS_DIR, dir, 'SKILL.md');
-  return readFileSync(filePath, 'utf-8');
+  try {
+    return readFileSync(filePath, 'utf-8');
+  } catch (error) {
+    throw new Error(
+      `Failed to load skill content from "${filePath}". ` +
+        'Ensure the skills/ directory is present in the distribution and that the server is running from the expected location.',
+      {cause: error},
+    );
+  }
 }
 
 export function registerPrompts(server: McpServer): void {
