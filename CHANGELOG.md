@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.3.0...safari-devtools-mcp-v1.4.0) (2026-04-08)
+
+
+### 🎉 Features
+
+* add MCP prompts for guided debugging workflows ([#33](https://github.com/HayoDev/safari-devtools-mcp/issues/33)) ([b666d0e](https://github.com/HayoDev/safari-devtools-mcp/commit/b666d0edb983c2cc77821fb8e5137ab5df0b6002))
+
 ## [1.3.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.2.1...safari-devtools-mcp-v1.3.0) (2026-04-07)
 
 
