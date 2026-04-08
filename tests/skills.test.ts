@@ -43,12 +43,14 @@ describe('Skills', () => {
 
   it('registerPrompts registers all expected skill names', () => {
     const registered: string[] = [];
+
     const fakeServer = {
-      prompt: (name: string, _desc: string, _handler: unknown) => {
+      prompt: (name: string, _desc: string, _handler: () => unknown) => {
         registered.push(name);
       },
-    };
-    registerPrompts(fakeServer as never);
+    } as unknown as Parameters<typeof registerPrompts>[0];
+
+    registerPrompts(fakeServer);
     for (const skill of EXPECTED_SKILLS) {
       assert.ok(
         registered.includes(skill),

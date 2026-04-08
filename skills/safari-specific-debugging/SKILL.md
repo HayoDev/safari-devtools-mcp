@@ -31,7 +31,7 @@ Run diagnostics with `evaluate_script`:
 evaluate_script function="() => {
   return {
     userAgent: navigator.userAgent,
-    webkitVersion: navigator.userAgent.match(/AppleWebKit\\/(\\d+)/)?.[1],
+    webkitVersion: navigator.userAgent.match(/AppleWebKit\/(\d+)/)?.[1],
     features: {
       structuredClone: typeof structuredClone !== 'undefined',
       requestIdleCallback: typeof requestIdleCallback !== 'undefined',
