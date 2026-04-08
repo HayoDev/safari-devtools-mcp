@@ -7,6 +7,8 @@
 
 import {McpServer} from '@modelcontextprotocol/sdk/server/mcp.js';
 import {SafariDriver} from './SafariDriver.js';
+import {registerPrompts} from './prompts.js';
+import {VERSION} from './version.js';
 import type {ToolDef} from './tools/types.js';
 
 // Tool modules — each exports a `tools` array
@@ -52,16 +54,20 @@ export function createSafariMcpServer(options: ServerOptions = {}): {
   const server = new McpServer(
     {
       name: 'safari-devtools-mcp',
-      version: '0.1.0',
+      version: VERSION,
     },
     {
       capabilities: {
         tools: {},
+        prompts: {},
       },
     },
   );
 
   const driver = new SafariDriver();
+
+  // Register guided debugging prompts (skills)
+  registerPrompts(server);
 
   for (const tool of allTools) {
     const description =
