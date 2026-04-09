@@ -666,7 +666,7 @@ export class SafariDriver {
 
     while (Date.now() - startTime < timeoutMs) {
       const result = await driver.executeScript<boolean>(
-        `return !!(${predicate});`,
+        `try { return !!(${predicate}); } catch { return false; }`,
       );
       if (result) return;
       await new Promise(r => setTimeout(r, 250));
