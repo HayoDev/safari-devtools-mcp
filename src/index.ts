@@ -24,6 +24,7 @@ import {tools as cssTools} from './tools/css.js';
 import {tools as cookieTools} from './tools/cookies.js';
 import {tools as storageTools} from './tools/storage.js';
 import {tools as inputTools} from './tools/input.js';
+import {tools as emulationTools} from './tools/emulation.js';
 
 const allTools: ToolDef[] = [
   ...consoleTools,
@@ -38,6 +39,7 @@ const allTools: ToolDef[] = [
   ...cookieTools,
   ...storageTools,
   ...inputTools,
+  ...emulationTools,
 ];
 
 export interface ServerOptions {

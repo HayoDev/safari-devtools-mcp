@@ -252,6 +252,19 @@ export class SafariDriver {
     return String(result ?? 'undefined');
   }
 
+  /**
+   * Execute a JavaScript expression in the page context.
+   * Unlike `evaluateScript`, this does not wrap code in a function or
+   * JSON-stringify the result. The provided string must be a valid
+   * expression (or an IIFE), since it is executed as `return ${expression}`.
+   * This is useful for expression-based reads or side-effects written as
+   * IIFEs, such as style overrides or matchMedia patches.
+   */
+  async runScript<T = unknown>(expression: string): Promise<T> {
+    const driver = await this.ensureDriver();
+    return driver.executeScript<T>(`return ${expression}`);
+  }
+
   // ---- Screenshot ----
 
   async takeScreenshot(): Promise<string> {
