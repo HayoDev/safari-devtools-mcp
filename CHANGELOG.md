@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.5.0...safari-devtools-mcp-v1.6.0) (2026-04-09)
+
+
+### 🎉 Features
+
+* add dark/light mode emulation tools (set_color_scheme, get_col… ([#36](https://github.com/HayoDev/safari-devtools-mcp/issues/36)) ([daee6b8](https://github.com/HayoDev/safari-devtools-mcp/commit/daee6b8adefcb4e2a63893fef69ca90c93c9ac29))
+
 ## [1.5.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.4.0...safari-devtools-mcp-v1.5.0) (2026-04-09)
 
 
