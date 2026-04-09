@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.4.0...safari-devtools-mcp-v1.5.0) (2026-04-09)
+
+
+### 🎉 Features
+
+* extend wait_for with selector, visibility, and predicate condi… ([#34](https://github.com/HayoDev/safari-devtools-mcp/issues/34)) ([06ae116](https://github.com/HayoDev/safari-devtools-mcp/commit/06ae1167ff39ef3fb6abc8253baa53d0c1ac5bab))
+
 ## [1.4.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.3.0...safari-devtools-mcp-v1.4.0) (2026-04-08)
 
 
