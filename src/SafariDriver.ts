@@ -634,6 +634,60 @@ export class SafariDriver {
     );
   }
 
+  async waitForSelector(
+    selector: string,
+    options?: {visible?: boolean; timeout?: number},
+  ): Promise<void> {
+    const driver = await this.ensureDriver();
+    const timeoutMs = options?.timeout ?? 30000;
+    const checkVisible = options?.visible ?? false;
+    const startTime = Date.now();
+
+    const script = checkVisible
+      ? `
+        const el = document.querySelector(${JSON.stringify(selector)});
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none'
+          && style.visibility !== 'hidden'
+          && style.opacity !== '0'
+          && el.offsetWidth > 0
+          && el.offsetHeight > 0;
+      `
+      : `return !!document.querySelector(${JSON.stringify(selector)});`;
+
+    while (Date.now() - startTime < timeoutMs) {
+      const found = await driver.executeScript<boolean>(
+        checkVisible ? `return (function() { ${script} })();` : script,
+      );
+      if (found) return;
+      await new Promise(r => setTimeout(r, 250));
+    }
+
+    const mode = checkVisible ? 'visible' : 'present';
+    throw new Error(
+      `Timeout waiting for selector "${selector}" to be ${mode} after ${timeoutMs}ms`,
+    );
+  }
+
+  async waitForFunction(predicate: string, timeout?: number): Promise<void> {
+    const driver = await this.ensureDriver();
+    const timeoutMs = timeout ?? 30000;
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeoutMs) {
+      const result = await driver.executeScript<boolean>(
+        `try { return !!(${predicate}); } catch { return false; }`,
+      );
+      if (result) return;
+      await new Promise(r => setTimeout(r, 250));
+    }
+
+    throw new Error(
+      `Timeout waiting for predicate to be truthy after ${timeoutMs}ms`,
+    );
+  }
+
   // ---- Tab management via AppleScript ----
 
   async listPages(): Promise<PageInfo[]> {
