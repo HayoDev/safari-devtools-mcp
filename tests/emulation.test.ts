@@ -1,5 +1,6 @@
 import {describe, it} from 'node:test';
 import assert from 'node:assert';
+import {z} from 'zod';
 import {tools} from '../src/tools/emulation.js';
 
 describe('Emulation tools', () => {
@@ -17,9 +18,9 @@ describe('Emulation tools', () => {
 
   it('set_color_scheme accepts light, dark, and reset', () => {
     const tool = tools.find(t => t.name === 'set_color_scheme')!;
-    const schema = tool.schema.colorScheme;
-    // Zod enum — verify the options are present
-    const options = schema._def.values as string[];
+    const schema = tool.schema.colorScheme as z.ZodEnum<[string, ...string[]]>;
+    // Zod enum — verify the options are present via the public API
+    const options = [...schema.options];
     assert.deepStrictEqual(options.sort(), ['dark', 'light', 'reset']);
   });
 
