@@ -294,7 +294,9 @@ export const deviceTools = [
     name: 'set_device_emulation',
     description:
       'Emulate an Apple device by resizing the viewport and overriding ' +
-      'user agent, device pixel ratio, and touch support. Choose a preset ' +
+      'device pixel ratio and touch support at the JS level. The user agent ' +
+      'is overridden via navigator.userAgent (JS-level only — HTTP request ' +
+      'headers are not affected). Choose a preset ' +
       `(${PRESET_NAMES.join(', ')}) or provide custom values. ` +
       'Use reset_device_emulation to restore defaults.',
     slimDescription: 'Emulate iPhone/iPad viewport and UA.',
@@ -323,7 +325,12 @@ export const deviceTools = [
         .max(4)
         .optional()
         .describe('Device pixel ratio (e.g. 2 for Retina).'),
-      userAgent: z.string().optional().describe('Custom user agent string.'),
+      userAgent: z
+        .string()
+        .optional()
+        .describe(
+          'Custom user agent string (JS-level override only; HTTP headers unchanged).',
+        ),
     },
     handler: async (params, driver) => {
       const preset = params.device ? DEVICE_PRESETS[params.device] : undefined;
@@ -345,6 +352,11 @@ export const deviceTools = [
         };
       }
 
+      // Save original window size before resizing
+      const originalSize = await driver.runScript<{w: number; h: number}>(
+        `({w: window.outerWidth, h: window.outerHeight})`,
+      );
+
       // Resize the browser window
       await driver.resizePage(width, height);
 
@@ -353,14 +365,16 @@ export const deviceTools = [
       if (dpr) overrides.push(`dpr: ${dpr}`);
       if (ua) overrides.push(`ua: ${JSON.stringify(ua)}`);
       overrides.push(`mobile: ${mobile}`);
+      overrides.push(`origW: ${originalSize.w}`);
+      overrides.push(`origH: ${originalSize.h}`);
 
       await driver.runScript(`((opts) => {
-        // Save originals for reset
+        // Save originals for reset (only on first call)
         if (!window.__safariMcpDeviceOriginals) {
           window.__safariMcpDeviceOriginals = {
-            devicePixelRatio: window.devicePixelRatio,
-            userAgent: navigator.userAgent,
-            maxTouchPoints: navigator.maxTouchPoints,
+            windowWidth: opts.origW,
+            windowHeight: opts.origH,
+            hadOntouchstart: 'ontouchstart' in window,
           };
         }
 
@@ -380,7 +394,7 @@ export const deviceTools = [
           Object.defineProperty(navigator, 'maxTouchPoints', {
             get: () => 5, configurable: true
           });
-          if (!('ontouchstart' in window)) {
+          if (!window.__safariMcpDeviceOriginals.hadOntouchstart) {
             window.ontouchstart = null;
           }
         }
@@ -390,7 +404,7 @@ export const deviceTools = [
       const details = [
         `viewport: ${width}×${height}`,
         dpr ? `dpr: ${dpr}` : null,
-        ua ? 'user agent: overridden' : null,
+        ua ? 'user agent: overridden (JS-level)' : null,
         mobile ? 'touch: enabled' : null,
       ]
         .filter(Boolean)
@@ -411,31 +425,38 @@ export const deviceTools = [
     name: 'reset_device_emulation',
     description:
       'Remove all device emulation overrides and restore the original ' +
-      'viewport size, user agent, device pixel ratio, and touch settings.',
+      'viewport size, JS-level user agent, device pixel ratio, and touch settings.',
     slimDescription: 'Reset device emulation.',
     schema: {},
     handler: async (_params, driver) => {
       const result = await driver.runScript<{
         restored: boolean;
-        width: number;
-        height: number;
+        windowWidth: number;
+        windowHeight: number;
       }>(`(() => {
         const orig = window.__safariMcpDeviceOriginals;
-        if (!orig) return { restored: false, width: window.innerWidth, height: window.innerHeight };
+        if (!orig) return { restored: false, windowWidth: 0, windowHeight: 0 };
 
-        Object.defineProperty(window, 'devicePixelRatio', {
-          get: () => orig.devicePixelRatio, configurable: true
-        });
-        Object.defineProperty(navigator, 'userAgent', {
-          get: () => orig.userAgent, configurable: true
-        });
-        Object.defineProperty(navigator, 'maxTouchPoints', {
-          get: () => orig.maxTouchPoints, configurable: true
-        });
-        delete window.ontouchstart;
+        // Delete own property overrides to expose prototype originals
+        const dprDesc = Object.getOwnPropertyDescriptor(window, 'devicePixelRatio');
+        if (dprDesc && dprDesc.configurable) delete window.devicePixelRatio;
+
+        const uaDesc = Object.getOwnPropertyDescriptor(navigator, 'userAgent');
+        if (uaDesc && uaDesc.configurable) delete navigator.userAgent;
+
+        const touchDesc = Object.getOwnPropertyDescriptor(navigator, 'maxTouchPoints');
+        if (touchDesc && touchDesc.configurable) delete navigator.maxTouchPoints;
+
+        // Only remove ontouchstart if we added it
+        if (!orig.hadOntouchstart && 'ontouchstart' in window) {
+          delete window.ontouchstart;
+        }
+
+        const ww = orig.windowWidth;
+        const wh = orig.windowHeight;
         delete window.__safariMcpDeviceOriginals;
 
-        return { restored: true, width: window.innerWidth, height: window.innerHeight };
+        return { restored: true, windowWidth: ww, windowHeight: wh };
       })()`);
 
       if (!result.restored) {
@@ -449,11 +470,16 @@ export const deviceTools = [
         };
       }
 
+      // Restore original window size
+      if (result.windowWidth && result.windowHeight) {
+        await driver.resizePage(result.windowWidth, result.windowHeight);
+      }
+
       return {
         content: [
           {
             type: 'text' as const,
-            text: 'Device emulation reset. Original UA, DPR, and touch settings restored.',
+            text: 'Device emulation reset. Viewport, DPR, UA, and touch settings restored.',
           },
         ],
       };
