@@ -209,3 +209,280 @@ export const tools = [
     },
   }),
 ];
+
+// ---- Device Emulation ----
+
+interface DevicePreset {
+  width: number;
+  height: number;
+  devicePixelRatio: number;
+  userAgent: string;
+  mobile: boolean;
+}
+
+const SAFARI_VERSION = '605.1.15';
+const WEBKIT_VERSION = '605.1.15';
+const OS_VERSION_IOS = '18_0';
+const OS_VERSION_IPAD = '18_0';
+
+const DEVICE_PRESETS: Record<string, DevicePreset> = {
+  'iPhone SE': {
+    width: 375,
+    height: 667,
+    devicePixelRatio: 2,
+    userAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS ${OS_VERSION_IOS} like Mac OS X) AppleWebKit/${WEBKIT_VERSION} (KHTML, like Gecko) Version/18.0 Mobile/${SAFARI_VERSION} Safari/${SAFARI_VERSION}`,
+    mobile: true,
+  },
+  'iPhone 14': {
+    width: 390,
+    height: 844,
+    devicePixelRatio: 3,
+    userAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS ${OS_VERSION_IOS} like Mac OS X) AppleWebKit/${WEBKIT_VERSION} (KHTML, like Gecko) Version/18.0 Mobile/${SAFARI_VERSION} Safari/${SAFARI_VERSION}`,
+    mobile: true,
+  },
+  'iPhone 15 Pro': {
+    width: 393,
+    height: 852,
+    devicePixelRatio: 3,
+    userAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS ${OS_VERSION_IOS} like Mac OS X) AppleWebKit/${WEBKIT_VERSION} (KHTML, like Gecko) Version/18.0 Mobile/${SAFARI_VERSION} Safari/${SAFARI_VERSION}`,
+    mobile: true,
+  },
+  'iPhone 16 Pro Max': {
+    width: 440,
+    height: 956,
+    devicePixelRatio: 3,
+    userAgent: `Mozilla/5.0 (iPhone; CPU iPhone OS ${OS_VERSION_IOS} like Mac OS X) AppleWebKit/${WEBKIT_VERSION} (KHTML, like Gecko) Version/18.0 Mobile/${SAFARI_VERSION} Safari/${SAFARI_VERSION}`,
+    mobile: true,
+  },
+  'iPad Mini': {
+    width: 744,
+    height: 1133,
+    devicePixelRatio: 2,
+    userAgent: `Mozilla/5.0 (iPad; CPU OS ${OS_VERSION_IPAD} like Mac OS X) AppleWebKit/${WEBKIT_VERSION} (KHTML, like Gecko) Version/18.0 Mobile/${SAFARI_VERSION} Safari/${SAFARI_VERSION}`,
+    mobile: true,
+  },
+  'iPad Air': {
+    width: 820,
+    height: 1180,
+    devicePixelRatio: 2,
+    userAgent: `Mozilla/5.0 (iPad; CPU OS ${OS_VERSION_IPAD} like Mac OS X) AppleWebKit/${WEBKIT_VERSION} (KHTML, like Gecko) Version/18.0 Mobile/${SAFARI_VERSION} Safari/${SAFARI_VERSION}`,
+    mobile: true,
+  },
+  'iPad Pro 11': {
+    width: 834,
+    height: 1194,
+    devicePixelRatio: 2,
+    userAgent: `Mozilla/5.0 (iPad; CPU OS ${OS_VERSION_IPAD} like Mac OS X) AppleWebKit/${WEBKIT_VERSION} (KHTML, like Gecko) Version/18.0 Mobile/${SAFARI_VERSION} Safari/${SAFARI_VERSION}`,
+    mobile: true,
+  },
+  'iPad Pro 13': {
+    width: 1024,
+    height: 1366,
+    devicePixelRatio: 2,
+    userAgent: `Mozilla/5.0 (iPad; CPU OS ${OS_VERSION_IPAD} like Mac OS X) AppleWebKit/${WEBKIT_VERSION} (KHTML, like Gecko) Version/18.0 Mobile/${SAFARI_VERSION} Safari/${SAFARI_VERSION}`,
+    mobile: true,
+  },
+};
+
+const PRESET_NAMES: [string, ...string[]] = Object.keys(DEVICE_PRESETS) as [
+  string,
+  ...string[],
+];
+
+export const deviceTools = [
+  defineTool({
+    name: 'set_device_emulation',
+    description:
+      'Emulate an Apple device by resizing the viewport and overriding ' +
+      'device pixel ratio and touch support at the JS level. The user agent ' +
+      'is overridden via navigator.userAgent (JS-level only — HTTP request ' +
+      'headers are not affected). Choose a preset ' +
+      `(${PRESET_NAMES.join(', ')}) or provide custom values. ` +
+      'Use reset_device_emulation to restore defaults.',
+    slimDescription: 'Emulate iPhone/iPad viewport and UA.',
+    schema: {
+      device: z
+        .enum(PRESET_NAMES)
+        .optional()
+        .describe(
+          'Apple device preset name. Overrides width/height/dpr/userAgent if provided.',
+        ),
+      width: z
+        .number()
+        .min(200)
+        .max(3840)
+        .optional()
+        .describe('Viewport width in CSS pixels.'),
+      height: z
+        .number()
+        .min(200)
+        .max(2160)
+        .optional()
+        .describe('Viewport height in CSS pixels.'),
+      devicePixelRatio: z
+        .number()
+        .min(1)
+        .max(4)
+        .optional()
+        .describe('Device pixel ratio (e.g. 2 for Retina).'),
+      userAgent: z
+        .string()
+        .optional()
+        .describe(
+          'Custom user agent string (JS-level override only; HTTP headers unchanged).',
+        ),
+    },
+    handler: async (params, driver) => {
+      const preset = params.device ? DEVICE_PRESETS[params.device] : undefined;
+      const width = params.width ?? preset?.width;
+      const height = params.height ?? preset?.height;
+      const dpr = params.devicePixelRatio ?? preset?.devicePixelRatio;
+      const ua = params.userAgent ?? preset?.userAgent;
+      const mobile = preset?.mobile ?? false;
+
+      if (!width || !height) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: 'Provide a device preset or both width and height.',
+            },
+          ],
+          isError: true,
+        };
+      }
+
+      // Save original window size before resizing
+      const originalSize = await driver.runScript<{w: number; h: number}>(
+        `({w: window.outerWidth, h: window.outerHeight})`,
+      );
+
+      // Resize the browser window
+      await driver.resizePage(width, height);
+
+      // Inject JS overrides for DPR, UA, and touch
+      const overrides: string[] = [];
+      if (dpr) overrides.push(`dpr: ${dpr}`);
+      if (ua) overrides.push(`ua: ${JSON.stringify(ua)}`);
+      overrides.push(`mobile: ${mobile}`);
+      overrides.push(`origW: ${originalSize.w}`);
+      overrides.push(`origH: ${originalSize.h}`);
+
+      await driver.runScript(`((opts) => {
+        // Save originals for reset (only on first call)
+        if (!window.__safariMcpDeviceOriginals) {
+          window.__safariMcpDeviceOriginals = {
+            windowWidth: opts.origW,
+            windowHeight: opts.origH,
+            hadOntouchstart: 'ontouchstart' in window,
+          };
+        }
+
+        if (opts.dpr) {
+          Object.defineProperty(window, 'devicePixelRatio', {
+            get: () => opts.dpr, configurable: true
+          });
+        }
+
+        if (opts.ua) {
+          Object.defineProperty(navigator, 'userAgent', {
+            get: () => opts.ua, configurable: true
+          });
+        }
+
+        if (opts.mobile) {
+          Object.defineProperty(navigator, 'maxTouchPoints', {
+            get: () => 5, configurable: true
+          });
+          if (!window.__safariMcpDeviceOriginals.hadOntouchstart) {
+            window.ontouchstart = null;
+          }
+        }
+      })({${overrides.join(', ')}})`);
+
+      const label = params.device ?? `${width}×${height}`;
+      const details = [
+        `viewport: ${width}×${height}`,
+        dpr ? `dpr: ${dpr}` : null,
+        ua ? 'user agent: overridden (JS-level)' : null,
+        mobile ? 'touch: enabled' : null,
+      ]
+        .filter(Boolean)
+        .join(', ');
+
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: `Device emulation set to ${label} (${details}).`,
+          },
+        ],
+      };
+    },
+  }),
+
+  defineTool({
+    name: 'reset_device_emulation',
+    description:
+      'Remove all device emulation overrides and restore the original ' +
+      'viewport size, JS-level user agent, device pixel ratio, and touch settings.',
+    slimDescription: 'Reset device emulation.',
+    schema: {},
+    handler: async (_params, driver) => {
+      const result = await driver.runScript<{
+        restored: boolean;
+        windowWidth: number;
+        windowHeight: number;
+      }>(`(() => {
+        const orig = window.__safariMcpDeviceOriginals;
+        if (!orig) return { restored: false, windowWidth: 0, windowHeight: 0 };
+
+        // Delete own property overrides to expose prototype originals
+        const dprDesc = Object.getOwnPropertyDescriptor(window, 'devicePixelRatio');
+        if (dprDesc && dprDesc.configurable) delete window.devicePixelRatio;
+
+        const uaDesc = Object.getOwnPropertyDescriptor(navigator, 'userAgent');
+        if (uaDesc && uaDesc.configurable) delete navigator.userAgent;
+
+        const touchDesc = Object.getOwnPropertyDescriptor(navigator, 'maxTouchPoints');
+        if (touchDesc && touchDesc.configurable) delete navigator.maxTouchPoints;
+
+        // Only remove ontouchstart if we added it
+        if (!orig.hadOntouchstart && 'ontouchstart' in window) {
+          delete window.ontouchstart;
+        }
+
+        const ww = orig.windowWidth;
+        const wh = orig.windowHeight;
+        delete window.__safariMcpDeviceOriginals;
+
+        return { restored: true, windowWidth: ww, windowHeight: wh };
+      })()`);
+
+      if (!result.restored) {
+        return {
+          content: [
+            {
+              type: 'text' as const,
+              text: 'No device emulation was active.',
+            },
+          ],
+        };
+      }
+
+      // Restore original window size
+      if (result.windowWidth && result.windowHeight) {
+        await driver.resizePage(result.windowWidth, result.windowHeight);
+      }
+
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: 'Device emulation reset. Viewport, DPR, UA, and touch settings restored.',
+          },
+        ],
+      };
+    },
+  }),
+];
