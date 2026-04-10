@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.7.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.6.0...safari-devtools-mcp-v1.7.0) (2026-04-10)
+
+
+### 🎉 Features
+
+* add device emulation with Apple device presets ([#40](https://github.com/HayoDev/safari-devtools-mcp/issues/40)) ([b72a8a7](https://github.com/HayoDev/safari-devtools-mcp/commit/b72a8a75bd965c70efa72044666f64724d2d4acb))
+
 ## [1.6.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.5.0...safari-devtools-mcp-v1.6.0) (2026-04-09)
 
 
