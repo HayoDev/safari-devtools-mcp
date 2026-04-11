@@ -25,6 +25,8 @@ import {tools as cookieTools} from './tools/cookies.js';
 import {tools as storageTools} from './tools/storage.js';
 import {tools as inputTools} from './tools/input.js';
 import {tools as emulationTools, deviceTools} from './tools/emulation.js';
+import {tools as iosValidationTools} from './tools/ios-validation.js';
+import {tools as webkitCompatTools} from './tools/webkit-compat.js';
 
 const allTools: ToolDef[] = [
   ...consoleTools,
@@ -41,6 +43,8 @@ const allTools: ToolDef[] = [
   ...inputTools,
   ...emulationTools,
   ...deviceTools,
+  ...iosValidationTools,
+  ...webkitCompatTools,
 ];
 
 export interface ServerOptions {

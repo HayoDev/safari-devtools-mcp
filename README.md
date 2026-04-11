@@ -208,7 +208,7 @@ The server exposes guided debugging workflows as MCP prompts. Clients that suppo
 | `safari-specific-debugging` | Debug WebKit quirks — CSS prefixes, JS feature gaps, ITP/CORS issues             |
 | `performance-debugging`     | Performance analysis — Navigation Timing, Core Web Vitals, resource waterfall    |
 
-## Tools (41)
+## Tools (45)
 
 ### Debugging
 
@@ -285,6 +285,20 @@ The server exposes guided debugging workflows as MCP prompts. Clients that suppo
 | `drag`          | Drag and drop between elements or coordinates        |
 | `press_key`     | Press a key or combination (e.g., `Meta+A`, `Enter`) |
 | `upload_file`   | Upload a file through a file input                   |
+
+### iOS Safari validation
+
+| Tool                          | Description                                                                                                    |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `inspect_viewport_meta`       | Parse the viewport meta tag and validate against iOS best practices (width, zoom, viewport-fit)                |
+| `get_safe_area_insets`        | Read CSS safe-area-inset values and check whether the page handles notched devices correctly                   |
+| `check_ios_web_app_readiness` | Audit the page for Add to Home Screen / PWA readiness (apple-touch-icon, manifest, splash screens, status bar) |
+
+### WebKit CSS compatibility
+
+| Tool                         | Description                                                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `check_webkit_compatibility` | Scan stylesheets for Safari CSS issues — missing -webkit- prefixes, known WebKit quirks, and deprecated syntax |
 
 ## Architecture
 
