@@ -17,6 +17,16 @@ interface ViewportIssue {
 function analyzeViewport(attrs: Record<string, string>): ViewportIssue[] {
   const issues: ViewportIssue[] = [];
 
+  if (Object.keys(attrs).length === 0) {
+    return [
+      {
+        severity: 'error',
+        message:
+          'No viewport meta tag found. iOS Safari will render at 980px width and scale down.',
+      },
+    ];
+  }
+
   if (!attrs.width) {
     issues.push({
       severity: 'error',
@@ -58,14 +68,6 @@ function analyzeViewport(attrs: Record<string, string>): ViewportIssue[] {
     issues.push({
       severity: 'info',
       message: `minimum-scale=${attrs['minimum-scale']}. Values below 1 allow zoom-out on iOS, which can cause layout issues.`,
-    });
-  }
-
-  if (Object.keys(attrs).length === 0) {
-    issues.push({
-      severity: 'error',
-      message:
-        'No viewport meta tag found. iOS Safari will render at 980px width and scale down.',
     });
   }
 

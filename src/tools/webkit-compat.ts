@@ -8,7 +8,6 @@
  *  - Properties with different behavior in WebKit vs other engines
  */
 
-import {z} from 'zod';
 import {defineTool} from './types.js';
 
 // Properties that still need -webkit- prefix in current Safari
@@ -145,14 +144,7 @@ export const tools = [
       'known WebKit rendering bugs, deprecated prefixes to clean up, and ' +
       'modern CSS features with limited Safari support.',
     slimDescription: 'Scan CSS for Safari compatibility issues.',
-    schema: {
-      selector: z
-        .string()
-        .optional()
-        .describe(
-          'Optional CSS selector to scope the check to styles affecting a specific element.',
-        ),
-    },
+    schema: {},
     handler: async (_params, driver) => {
       // Collect all CSS text from stylesheets
       const cssText = await driver.runScript<string>(`(() => {
@@ -191,9 +183,11 @@ export const tools = [
       // Check for properties needing -webkit- prefix
       for (const [prop, message] of Object.entries(NEEDS_PREFIX)) {
         const propPattern = prop.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        // Check if unprefixed is used without -webkit- version
+        // Match as a CSS declaration (word boundary before, colon or space after)
+        // to avoid false positives on custom properties like --backdrop-filter
+        const declPattern = `(?<![\\w-])${propPattern}`;
         if (
-          new RegExp(`(?<!-webkit-)${propPattern}`, 'i').test(cssText) &&
+          new RegExp(`(?<!-webkit-)${declPattern}`, 'i').test(cssText) &&
           !new RegExp(`-webkit-${propPattern}`, 'i').test(cssText)
         ) {
           findings.push({

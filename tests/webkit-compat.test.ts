@@ -20,9 +20,8 @@ describe('WebKit compatibility tools', () => {
     }
   });
 
-  it('check_webkit_compatibility has optional selector param', () => {
+  it('check_webkit_compatibility has an empty schema', () => {
     const tool = tools.find(t => t.name === 'check_webkit_compatibility')!;
-    assert.ok(tool.schema.selector, 'should have selector param');
-    assert.ok(tool.schema.selector.isOptional(), 'selector should be optional');
+    assert.deepStrictEqual(Object.keys(tool.schema), []);
   });
 });
