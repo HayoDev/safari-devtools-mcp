@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.8.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.7.0...safari-devtools-mcp-v1.8.0) (2026-04-11)
+
+
+### 🎉 Features
+
+* add iOS viewport validation and WebKit CSS compatibility tools ([#42](https://github.com/HayoDev/safari-devtools-mcp/issues/42)) ([7d35678](https://github.com/HayoDev/safari-devtools-mcp/commit/7d35678628bf276c55bb7ba88178c48b99feb502))
+
 ## [1.7.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.6.0...safari-devtools-mcp-v1.7.0) (2026-04-10)
 
 
