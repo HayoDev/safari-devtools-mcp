@@ -293,12 +293,7 @@ The server exposes guided debugging workflows as MCP prompts. Clients that suppo
 | `inspect_viewport_meta`       | Parse the viewport meta tag and validate against iOS best practices (width, zoom, viewport-fit)                |
 | `get_safe_area_insets`        | Read CSS safe-area-inset values and check whether the page handles notched devices correctly                   |
 | `check_ios_web_app_readiness` | Audit the page for Add to Home Screen / PWA readiness (apple-touch-icon, manifest, splash screens, status bar) |
-
-### WebKit CSS compatibility
-
-| Tool                         | Description                                                                                                    |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `check_webkit_compatibility` | Scan stylesheets for Safari CSS issues — missing -webkit- prefixes, known WebKit quirks, and deprecated syntax |
+| `check_webkit_compatibility`  | Check page CSS against the live Safari session via CSS.supports()                                              |
 
 ## Architecture
 

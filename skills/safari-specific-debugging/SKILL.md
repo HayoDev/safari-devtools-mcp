@@ -7,18 +7,23 @@ or when debugging WebKit-specific behavior.
 
 ### CSS issues
 
-Safari lags behind on some CSS features and requires `-webkit-` prefixes
-for others. Debug with:
+Start by running `check_webkit_compatibility` — it checks every CSS property
+on the page against the live Safari session via `CSS.supports()` and reports
+what is actually broken (unsupported properties, missing `-webkit-` prefixes):
+
+```
+check_webkit_compatibility
+```
+
+For specific elements, inspect computed styles directly:
 
 ```
 get_computed_style uid="<element-uid>" properties=["display", "gap", "aspect-ratio", "container-type", "backdrop-filter"]
 ```
 
-**Known Safari CSS quirks:**
+**Common Safari CSS gotchas:**
 
-- `gap` in flexbox: Supported since Safari 14.1, but older versions fail silently.
-- `aspect-ratio`: Works, but may not apply in some flex/grid contexts.
-- `-webkit-backdrop-filter`: Still requires prefix in some versions.
+- `-webkit-backdrop-filter`: Still requires prefix in Safari <18.
 - `100vh` on iOS Safari includes the address bar — use `100dvh` instead.
 - `position: sticky` inside `overflow: auto` containers often breaks.
 - `:has()` selector: Safari was first to ship it, but edge cases may differ.
@@ -115,7 +120,13 @@ see what the a11y tree reports, then `take_screenshot` for visual comparison.
    evaluate_script function="() => { /* feature detection code */ }"
    ```
 
-6. Check CSS rendering:
+6. Check CSS compatibility across the page:
+
+   ```
+   check_webkit_compatibility
+   ```
+
+7. Inspect a specific element's styles:
    ```
    get_computed_style uid="<element-uid>"
    ```
