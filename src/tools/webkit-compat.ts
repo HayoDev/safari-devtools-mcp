@@ -1,137 +1,30 @@
 /**
  * WebKit CSS compatibility checker.
  *
- * Scans stylesheets for known WebKit/Safari CSS issues:
- *  - Properties that need -webkit- prefix in Safari
- *  - Known WebKit rendering bugs with workarounds
- *  - Deprecated -webkit- properties that should be removed
- *  - Properties with different behavior in WebKit vs other engines
+ * Runs inside a live Safari WebDriver session. Extracts CSS from the page
+ * using structured DOM APIs (rule.style iteration — no regex, no false
+ * positives on custom properties), then runs CSS.supports() in the actual
+ * browser to report what is genuinely broken right now.
  */
 
 import {defineTool} from './types.js';
 
-// Properties that still need -webkit- prefix in current Safari
-const NEEDS_PREFIX: Record<string, string> = {
-  'backdrop-filter':
-    'Safari requires -webkit-backdrop-filter. Unprefixed is supported only in Safari 18+.',
-  'text-decoration-skip-ink':
-    'Safari <18 needs -webkit-text-decoration-skip-ink.',
-  'line-clamp':
-    'Use -webkit-line-clamp with display: -webkit-box and -webkit-box-orient: vertical.',
-  'initial-letter': 'Safari requires -webkit-initial-letter.',
-  'text-stroke': 'Non-standard. Use -webkit-text-stroke (Safari-only feature).',
-  'background-clip: text':
-    'Safari requires -webkit-background-clip: text for text clipping.',
-  'touch-callout':
-    'iOS-only. Use -webkit-touch-callout: none to disable long-press popups.',
-  'overflow-scrolling':
-    'Use -webkit-overflow-scrolling: touch for momentum scrolling on iOS <15.',
-};
-
-// Known WebKit CSS bugs and quirks
-const KNOWN_QUIRKS: {pattern: string; message: string}[] = [
+/**
+ * Behavioral quirks that CSS.supports() cannot detect — the property IS
+ * "supported", it just renders incorrectly. Keep this list small, precise,
+ * and each entry must be a confirmed Safari rendering bug.
+ */
+const BEHAVIORAL_QUIRKS: {
+  property: string;
+  matchValue?: string;
+  message: string;
+}[] = [
   {
-    pattern: 'gap',
+    property: 'position',
+    matchValue: 'sticky',
     message:
-      'Flexbox "gap" is unsupported in Safari <14.1. Use margin-based spacing as fallback.',
-  },
-  {
-    pattern: 'position:\\s*sticky',
-    message:
-      'position:sticky inside overflow:hidden parents is broken in Safari. The sticky element will not stick.',
-  },
-  {
-    pattern: 'aspect-ratio',
-    message:
-      'aspect-ratio is unsupported in Safari <15. Use the padding-bottom hack as fallback.',
-  },
-  {
-    pattern: ':has\\(',
-    message:
-      ':has() is supported in Safari 15.4+ but has performance edge cases with large DOM trees.',
-  },
-  {
-    pattern: 'container-type|@container',
-    message:
-      'Container queries require Safari 16+. No support in older iOS versions still in use.',
-  },
-  {
-    pattern: 'color-mix\\(',
-    message: 'color-mix() requires Safari 16.2+.',
-  },
-  {
-    pattern: '@layer',
-    message: '@layer (cascade layers) requires Safari 15.4+.',
-  },
-  {
-    pattern: 'subgrid',
-    message: 'subgrid requires Safari 16+.',
-  },
-  {
-    pattern: ':focus-visible',
-    message:
-      ':focus-visible requires Safari 15.4+. Older versions need :focus fallback.',
-  },
-  {
-    pattern: 'overscroll-behavior',
-    message: 'overscroll-behavior requires Safari 16+. No effect on older iOS.',
-  },
-  {
-    pattern: 'dvh|svh|lvh',
-    message:
-      'Dynamic viewport units (dvh/svh/lvh) require Safari 15.4+. Use vh with JS fallback for older iOS.',
-  },
-  {
-    pattern: 'content-visibility',
-    message:
-      'content-visibility requires Safari 18+. Not supported in most iOS versions in the wild.',
-  },
-];
-
-// Deprecated -webkit- prefixes that can be removed
-const DEPRECATED_PREFIXES = [
-  {
-    prefix: '-webkit-border-radius',
-    standard: 'border-radius',
-    message: 'Unprefixed since Safari 5. Remove -webkit- prefix.',
-  },
-  {
-    prefix: '-webkit-box-shadow',
-    standard: 'box-shadow',
-    message: 'Unprefixed since Safari 5.1. Remove -webkit- prefix.',
-  },
-  {
-    prefix: '-webkit-transform',
-    standard: 'transform',
-    message: 'Unprefixed since Safari 9. Remove -webkit- prefix.',
-  },
-  {
-    prefix: '-webkit-transition',
-    standard: 'transition',
-    message: 'Unprefixed since Safari 9. Remove -webkit- prefix.',
-  },
-  {
-    prefix: '-webkit-animation',
-    standard: 'animation',
-    message: 'Unprefixed since Safari 9. Remove -webkit- prefix.',
-  },
-  {
-    prefix: '-webkit-flex',
-    standard: 'flex',
-    message:
-      'Unprefixed since Safari 9. Remove -webkit-flex and -webkit-box-flex.',
-  },
-  {
-    prefix: '-webkit-appearance',
-    standard: 'appearance',
-    message:
-      'Unprefixed since Safari 15.4. Keep prefix only if supporting older iOS.',
-  },
-  {
-    prefix: '-webkit-user-select',
-    standard: 'user-select',
-    message:
-      'Unprefixed since Safari 16.4. Keep prefix only if supporting older iOS.',
+      'position:sticky silently fails inside an overflow:hidden or overflow:auto ' +
+      'ancestor in Safari. Use overflow:clip on the ancestor instead.',
   },
 ];
 
@@ -139,121 +32,162 @@ export const tools = [
   defineTool({
     name: 'check_webkit_compatibility',
     description:
-      'Scan all stylesheets on the current page for WebKit/Safari CSS ' +
-      'compatibility issues. Reports: properties that need -webkit- prefix, ' +
-      'known WebKit rendering bugs, deprecated prefixes to clean up, and ' +
-      'modern CSS features with limited Safari support.',
-    slimDescription: 'Scan CSS for Safari compatibility issues.',
+      'Check CSS on the current page against the live Safari session. ' +
+      'Extracts every CSS property via structured DOM APIs, runs CSS.supports() ' +
+      'in the actual browser, and reports what is broken right now — unsupported ' +
+      'properties, missing -webkit- prefixes, and known Safari rendering quirks.',
+    slimDescription: 'Check CSS against live Safari via CSS.supports().',
     schema: {},
+
     handler: async (_params, driver) => {
-      // Collect all CSS text from stylesheets
-      const cssText = await driver.runScript<string>(`(() => {
-        const texts = [];
-        for (const sheet of document.styleSheets) {
-          try {
-            for (const rule of sheet.cssRules) {
-              texts.push(rule.cssText);
+      // -----------------------------------------------------------------
+      // Step 1: Extract structured CSS from the page + run CSS.supports()
+      // in one round-trip. Uses rule.style iteration for canonical property
+      // names — custom properties (--*) are excluded automatically.
+      // -----------------------------------------------------------------
+      const results = await driver.runScript<{
+        totalProperties: number;
+        unsupported: {property: string; value: string}[];
+        needsPrefix: {property: string; value: string}[];
+        computedProperties: Record<string, string>;
+      }>(`(() => {
+        // Collect unique property:value pairs from all accessible stylesheets
+        const seen = new Map();
+
+        function collectFromStyle(style) {
+          for (const prop of style) {
+            if (prop.startsWith('--')) continue;
+            if (seen.has(prop)) continue;
+            seen.set(prop, style.getPropertyValue(prop).trim());
+          }
+        }
+
+        function processRules(rules) {
+          for (const rule of rules) {
+            // Skip @font-face — its descriptors (src, font-display, unicode-range)
+            // are not CSS properties and CSS.supports() always returns false for them
+            if (rule.constructor?.name === 'CSSFontFaceRule') continue;
+            if (rule.style) collectFromStyle(rule.style);
+            if (rule.cssRules) {
+              try { processRules(rule.cssRules); } catch {}
             }
-          } catch {}
+          }
         }
-        // Also check inline styles in style attributes
+
+        for (const sheet of document.styleSheets) {
+          try { processRules(sheet.cssRules); } catch {}
+        }
+
+        // Inline styles
         for (const el of document.querySelectorAll('[style]')) {
-          texts.push(el.getAttribute('style') || '');
+          collectFromStyle(el.style);
         }
-        return texts.join('\\n');
+
+        const totalProperties = seen.size;
+        const unsupported = [];
+        const needsPrefix = [];
+
+        for (const [prop, value] of seen) {
+          let supported = false;
+          try { supported = CSS.supports(prop, value); } catch {}
+
+          if (!supported) {
+            // Try again with a generic value — the extracted value might be
+            // a computed/resolved form CSS.supports doesn't accept
+            try { supported = CSS.supports(prop, 'initial'); } catch {}
+          }
+
+          if (supported) continue;
+
+          // Not supported unprefixed — check if -webkit- variant works
+          const webkitProp = '-webkit-' + prop;
+          let webkitSupported = false;
+          try { webkitSupported = CSS.supports(webkitProp, value); } catch {}
+          if (!webkitSupported) {
+            try { webkitSupported = CSS.supports(webkitProp, 'initial'); } catch {}
+          }
+
+          if (webkitSupported) {
+            needsPrefix.push({ property: prop, value });
+          } else {
+            unsupported.push({ property: prop, value });
+          }
+        }
+
+        // Collect a subset of computed properties for behavioral quirk checks
+        const body = document.body;
+        const computedProperties = {};
+        if (body) {
+          const quirkProps = ${JSON.stringify(BEHAVIORAL_QUIRKS.map(q => q.property))};
+          for (const prop of quirkProps) {
+            if (seen.has(prop)) {
+              computedProperties[prop] = seen.get(prop);
+            }
+          }
+        }
+
+        return { totalProperties, unsupported, needsPrefix, computedProperties };
       })()`);
 
-      if (!cssText || cssText.length === 0) {
-        return {
-          content: [
-            {
-              type: 'text' as const,
-              text: 'No accessible stylesheets found. Cross-origin stylesheets cannot be inspected.',
-            },
-          ],
-        };
+      // -----------------------------------------------------------------
+      // Step 2: Check behavioral quirks
+      // -----------------------------------------------------------------
+      const quirks: string[] = [];
+      for (const quirk of BEHAVIORAL_QUIRKS) {
+        const value = results.computedProperties[quirk.property];
+        if (value === undefined) continue;
+        if (quirk.matchValue && !value.includes(quirk.matchValue)) continue;
+        quirks.push(quirk.message);
       }
 
-      const findings: {
-        category: string;
-        severity: 'error' | 'warning' | 'info';
-        message: string;
-      }[] = [];
-
-      // Check for properties needing -webkit- prefix
-      for (const [prop, message] of Object.entries(NEEDS_PREFIX)) {
-        const propPattern = prop.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        // Match as a CSS declaration (word boundary before, colon or space after)
-        // to avoid false positives on custom properties like --backdrop-filter
-        const declPattern = `(?<![\\w-])${propPattern}`;
-        if (
-          new RegExp(`(?<!-webkit-)${declPattern}`, 'i').test(cssText) &&
-          !new RegExp(`-webkit-${propPattern}`, 'i').test(cssText)
-        ) {
-          findings.push({
-            category: 'Missing prefix',
-            severity: 'warning',
-            message: `${prop}: ${message}`,
-          });
-        }
-      }
-
-      // Check for known WebKit quirks
-      for (const quirk of KNOWN_QUIRKS) {
-        if (new RegExp(quirk.pattern, 'i').test(cssText)) {
-          findings.push({
-            category: 'Compatibility',
-            severity: 'info',
-            message: quirk.message,
-          });
-        }
-      }
-
-      // Check for deprecated -webkit- prefixes
-      for (const dep of DEPRECATED_PREFIXES) {
-        if (cssText.includes(dep.prefix)) {
-          findings.push({
-            category: 'Deprecated prefix',
-            severity: 'info',
-            message: `${dep.prefix} → ${dep.standard}: ${dep.message}`,
-          });
-        }
-      }
-
-      // Build output
+      // -----------------------------------------------------------------
+      // Step 3: Format output
+      // -----------------------------------------------------------------
+      const total =
+        results.unsupported.length + results.needsPrefix.length + quirks.length;
       const lines: string[] = [];
-      if (findings.length === 0) {
+
+      if (total === 0) {
         lines.push(
-          '✅ No WebKit CSS compatibility issues found in accessible stylesheets.',
+          `✅ No issues found. ${results.totalProperties} CSS properties checked via CSS.supports() in this Safari session.`,
         );
       } else {
-        const warnings = findings.filter(f => f.severity === 'warning');
-        const infos = findings.filter(f => f.severity === 'info');
-
         lines.push(
-          `Found ${findings.length} issue(s) across accessible stylesheets:`,
+          `Found ${total} issue(s) — ${results.totalProperties} properties checked via CSS.supports() in this Safari session.`,
         );
         lines.push('');
 
-        if (warnings.length > 0) {
-          lines.push(`⚠ Action needed (${warnings.length}):`);
-          for (const f of warnings) {
-            lines.push(`  [${f.category}] ${f.message}`);
+        if (results.unsupported.length > 0) {
+          lines.push(
+            `❌ Unsupported in this Safari (${results.unsupported.length}):`,
+          );
+          for (const {property, value} of results.unsupported) {
+            const preview =
+              value.length > 60 ? value.slice(0, 57) + '...' : value;
+            lines.push(`  ${property}: ${preview}`);
           }
           lines.push('');
         }
 
-        if (infos.length > 0) {
-          lines.push(`ℹ Informational (${infos.length}):`);
-          for (const f of infos) {
-            lines.push(`  [${f.category}] ${f.message}`);
+        if (results.needsPrefix.length > 0) {
+          lines.push(
+            `⚠ Needs -webkit- prefix (${results.needsPrefix.length}):`,
+          );
+          for (const {property} of results.needsPrefix) {
+            lines.push(`  ${property} → use -webkit-${property} alongside it`);
+          }
+          lines.push('');
+        }
+
+        if (quirks.length > 0) {
+          lines.push(`ℹ Known Safari rendering quirks (${quirks.length}):`);
+          for (const msg of quirks) {
+            lines.push(`  ${msg}`);
           }
         }
       }
 
-      return {
-        content: [{type: 'text' as const, text: lines.join('\n')}],
-      };
+      return {content: [{type: 'text' as const, text: lines.join('\n')}]};
     },
   }),
 ];
