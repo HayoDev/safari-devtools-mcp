@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.8.1](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.8.0...safari-devtools-mcp-v1.8.1) (2026-04-13)
+
+
+### 🛠️ Fixes
+
+* rewrite check_webkit_compatibility to use live CSS.supports() ([#44](https://github.com/HayoDev/safari-devtools-mcp/issues/44)) ([5d373b1](https://github.com/HayoDev/safari-devtools-mcp/commit/5d373b1332760955ab18d25e67c5220cfc192639))
+
 ## [1.8.0](https://github.com/HayoDev/safari-devtools-mcp/compare/safari-devtools-mcp-v1.7.0...safari-devtools-mcp-v1.8.0) (2026-04-11)
 
 
